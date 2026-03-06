@@ -1,0 +1,2313 @@
+<!DOCTYPE html>
+<html lang="es" id="html-root">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Tomás Camacho Rincones — Observatorio Geopolítico</title>
+  <meta name="description" content="Dr. Tomás Camacho Rincones. Investigador en geopolítica, ciencias gerenciales y Sur Global. Observatorio de capas geopolíticas, noticias en tiempo real y fact-checker."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+/* ── RESET & TOKENS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0B0906; --paper:#F5EFE4; --mist:#E0D8C4; --dim:#6A5E4A;
+  --gold:#B8892A; --gold2:#D4A843; --gold3:#F0C86A;
+  --rust:#8B3A2A; --teal:#1D6060; --slate:#243444;
+  --geo1:#D04030; --geo2:#2A7A4A; --geo3:#1E6A9A;
+  --panel:#110E09; --border:rgba(184,137,42,.15);
+  --font-d:'Playfair Display',Georgia,serif;
+  --font-b:'Lora',Georgia,serif;
+  --font-m:'JetBrains Mono',monospace;
+  --max:1200px; --r:6px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--ink);color:var(--paper);line-height:1.75;font-size:16px;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--ink)}
+img{max-width:100%;display:block}
+a{color:var(--gold2);text-decoration:none;transition:color .2s}
+a:hover{color:var(--paper)}
+button{cursor:pointer;font-family:var(--font-m)}
+
+/* ── NOISE TEXTURE ──────────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
+  background-size:180px;pointer-events:none;z-index:0;opacity:.6}
+body>*{position:relative;z-index:1}
+
+/* ── UTILS ──────────────────────────────────────────────── */
+.container{max-width:var(--max);margin:0 auto;padding:0 32px}
+.section{padding:88px 0}
+.label{font-family:var(--font-m);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block}
+.h1{font-family:var(--font-d);font-size:clamp(38px,6vw,76px);font-weight:800;line-height:1.05;letter-spacing:-1px;color:var(--paper)}
+.h2{font-family:var(--font-d);font-size:clamp(26px,3.5vw,42px);font-weight:600;line-height:1.15;color:var(--paper);margin-bottom:16px}
+.h3{font-family:var(--font-d);font-size:clamp(18px,2.2vw,26px);font-weight:600;line-height:1.2;color:var(--paper)}
+.body-text{color:var(--mist);line-height:1.85}
+.dimtext{color:var(--dim)}
+.mono{font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold) 40%,transparent);opacity:.2;margin:0 auto}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:11px 24px;border-radius:var(--r);border:1px solid var(--gold);color:var(--gold2);background:transparent;transition:all .25s;white-space:nowrap}
+.btn:hover{background:var(--gold);color:var(--ink)}
+.btn-solid{background:var(--gold);color:var(--ink);font-weight:600}
+.btn-solid:hover{background:var(--gold2);color:var(--ink)}
+.tag{display:inline-block;font-family:var(--font-m);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid currentColor}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);transition:border-color .3s,transform .3s}
+.card:hover{border-color:rgba(184,137,42,.35);transform:translateY(-2px)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+.delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}
+
+/* ── LANGUAGE BADGE ─────────────────────────────────────── */
+.lang-bar{background:rgba(184,137,42,.06);border-bottom:1px solid var(--border);padding:8px 0}
+.lang-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.lang-btns{display:flex;gap:6px}
+.lang-btn{background:transparent;border:1px solid rgba(184,137,42,.2);color:var(--dim);font-family:var(--font-m);font-size:9px;letter-spacing:2px;padding:4px 12px;border-radius:20px;transition:all .2s}
+.lang-btn:hover,.lang-btn.active{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.lang-notice{font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;color:var(--dim)}
+
+/* ── NAV ────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;transition:all .4s}
+nav.scrolled{background:rgba(11,9,6,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nav-logo{font-family:var(--font-d);font-size:17px;color:var(--paper);font-weight:600;white-space:nowrap}
+.nav-logo span{color:var(--gold2)}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-family:var(--font-m);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);transition:color .2s}
+.nav-links a:hover{color:var(--paper)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:1px;background:var(--paper);transition:all .3s}
+.mobile-menu{display:none;position:fixed;inset:0;background:rgba(11,9,6,.98);z-index:99;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-family:var(--font-d);font-size:26px;color:var(--paper)}
+.mobile-close{position:absolute;top:22px;right:28px;font-size:26px;cursor:pointer;color:var(--dim);background:none;border:none}
+
+/* ── HERO ───────────────────────────────────────────────── */
+#hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(184,137,42,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(184,137,42,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black,transparent)}
+.orb{position:absolute;border-radius:50%;filter:blur(130px);pointer-events:none}
+.orb1{width:550px;height:550px;background:rgba(29,96,96,.13);top:-120px;right:-100px}
+.orb2{width:420px;height:420px;background:rgba(184,137,42,.07);bottom:-60px;left:-80px}
+.orb3{width:300px;height:300px;background:rgba(139,58,42,.08);top:40%;left:40%}
+.hero-content{max-width:800px;padding-top:100px}
+.hero-eyebrow{font-family:var(--font-m);font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:26px;display:flex;align-items:center;gap:14px}
+.hero-eyebrow::before{content:'';display:block;width:36px;height:1px;background:var(--gold)}
+.hero-title em{color:var(--gold2);font-style:italic}
+.hero-subtitle{font-size:17px;color:#9A8A6A;line-height:1.85;max-width:600px;margin:22px 0 40px}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
+.hero-tags .tag{color:var(--dim);border-color:rgba(107,95,72,.35);font-size:9px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--font-m);font-size:9px;letter-spacing:3px;color:var(--dim);animation:float 2.5s ease-in-out infinite}
+.hero-scroll::after{content:'';display:block;width:1px;height:38px;background:linear-gradient(var(--gold),transparent)}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
+
+/* ── CREDENCIALES STRIP ─────────────────────────────────── */
+.cred-strip-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;background:rgba(184,137,42,.025);overflow:hidden}
+.cred-scroll{display:flex;gap:36px;animation:ticker 35s linear infinite;width:max-content}
+.cred-scroll:hover{animation-play-state:paused}
+.cred-item{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.cred-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.cred-item span{font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;color:var(--dim);white-space:nowrap}
+.cred-sep{color:rgba(184,137,42,.3);font-size:16px;flex-shrink:0}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ══════════════════════════════════════════════════════════
+   OBSERVATORIO — MAPA
+══════════════════════════════════════════════════════════ */
+#observatorio{background:#060504;padding:0}
+.obs-header{padding:60px 0 32px;background:linear-gradient(180deg,#060504,#080604)}
+.obs-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:28px}
+.layer-toggles{display:flex;gap:10px;flex-wrap:wrap}
+.layer-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:var(--dim);font-family:var(--font-m);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;border-radius:var(--r);transition:all .25s}
+.layer-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:all .25s}
+.layer-btn.active-geo1{border-color:var(--geo1);color:var(--geo1);background:rgba(208,64,48,.08)}
+.layer-btn.active-geo2{border-color:var(--geo2);color:var(--geo2);background:rgba(42,122,74,.08)}
+.layer-btn.active-geo3{border-color:var(--geo3);color:var(--geo3);background:rgba(30,106,154,.08)}
+.obs-map-wrap{position:relative;height:540px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+#obs-map{width:100%;height:100%;background:#0D1018}
+.map-legend{position:absolute;bottom:20px;left:20px;z-index:400;background:rgba(11,9,6,.88);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;min-width:200px}
+.legend-title{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-family:var(--font-m);font-size:9px;letter-spacing:1px;color:var(--dim)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.map-source{position:absolute;bottom:8px;right:12px;z-index:400;font-family:var(--font-m);font-size:8px;letter-spacing:1px;color:rgba(107,95,72,.5)}
+.map-loading{position:absolute;inset:0;z-index:500;background:rgba(6,5,4,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:var(--font-m);font-size:10px;letter-spacing:3px;color:var(--dim)}
+.spinner{width:32px;height:32px;border:2px solid rgba(184,137,42,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Leaflet popup override */
+.leaflet-popup-content-wrapper{background:#120F0A!important;border:1px solid var(--border)!important;border-radius:var(--r)!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important}
+.leaflet-popup-tip{background:#120F0A!important}
+.leaflet-popup-content{color:var(--paper)!important;font-family:var(--font-b)!important;font-size:13px!important;margin:12px 16px!important}
+.pop-type{font-family:var(--font-m);font-size:9px;letter-spacing:2px;margin-bottom:6px}
+.pop-title{font-family:var(--font-d);font-size:16px;font-weight:600;margin-bottom:6px;line-height:1.2}
+.pop-desc{font-size:12px;color:var(--dim);line-height:1.6}
+
+/* ── NEWS WIDGET ────────────────────────────────────────── */
+#noticias{background:#080604}
+.news-tabs{display:flex;gap:4px;margin-bottom:32px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.news-tabs::-webkit-scrollbar{display:none}
+.news-tab{background:transparent;border:1px solid rgba(184,137,42,.12);color:var(--dim);font-family:var(--font-m);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;border-radius:var(--r);transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.news-tab:hover{border-color:rgba(184,137,42,.3);color:var(--paper)}
+.news-tab.active{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+.news-continent-icon{font-size:14px}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;min-height:300px}
+.news-card{background:rgba(184,137,42,.03);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;transition:all .3s;display:flex;flex-direction:column;gap:10px;cursor:pointer}
+.news-card:hover{border-color:rgba(184,137,42,.3);background:rgba(184,137,42,.06);transform:translateY(-2px)}
+.news-source{font-family:var(--font-m);font-size:8px;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.news-live-dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.news-title{font-family:var(--font-d);font-size:15px;font-weight:600;color:var(--paper);line-height:1.3}
+.news-excerpt{font-size:12px;color:var(--dim);line-height:1.65;flex:1}
+.news-meta{font-family:var(--font-m);font-size:8px;letter-spacing:1px;color:#3A3020;margin-top:auto}
+.news-loading{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;padding:60px;color:var(--dim);font-family:var(--font-m);font-size:10px;letter-spacing:3px}
+.news-empty{grid-column:1/-1;text-align:center;padding:60px;color:var(--dim);font-family:var(--font-m);font-size:10px;letter-spacing:2px}
+
+/* ── FACT CHECKER ───────────────────────────────────────── */
+#factchecker{background:linear-gradient(135deg,#060504 0%,#04080A 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fc-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:64px;align-items:start}
+.fc-how{background:rgba(184,137,42,.04);border:1px solid var(--border);border-radius:var(--r);padding:28px 26px;margin-top:32px}
+.fc-step{display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}
+.fc-step-num{width:28px;height:28px;border-radius:50%;background:rgba(184,137,42,.12);border:1px solid rgba(184,137,42,.25);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:10px;color:var(--gold);flex-shrink:0}
+.fc-step-text{font-size:13px;color:var(--dim);line-height:1.65;padding-top:4px}
+.fc-panel{background:rgba(184,137,42,.04);border:1px solid var(--border);border-radius:10px;padding:36px}
+.fc-api-notice{background:rgba(30,96,96,.1);border:1px solid rgba(29,96,96,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:24px;font-size:12px;color:var(--dim);line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.fc-api-notice span{color:var(--teal);flex-shrink:0;font-size:16px}
+.fc-textarea{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(184,137,42,.2);border-radius:var(--r);color:var(--paper);font-family:var(--font-b);font-size:14px;padding:14px 16px;min-height:120px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.65}
+.fc-textarea:focus{border-color:var(--gold)}
+.fc-input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(184,137,42,.2);border-radius:var(--r);color:var(--paper);font-family:var(--font-b);font-size:14px;padding:12px 16px;outline:none;transition:border-color .2s}
+.fc-input:focus{border-color:var(--gold)}
+.fc-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.fc-result{margin-top:20px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:none;min-height:80px}
+.fc-result.show{display:block}
+.fc-verdict{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.fc-verdict-icon{font-size:24px}
+.fc-verdict-label{font-family:var(--font-m);font-size:10px;letter-spacing:2px}
+.fc-verdict-score{margin-left:auto;font-family:var(--font-d);font-size:22px;font-weight:700}
+.fc-analysis{font-size:13px;color:var(--mist);line-height:1.75}
+.fc-sources{margin-top:12px}
+.fc-sources-title{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px}
+.fc-source-tag{display:inline-block;background:rgba(184,137,42,.08);border:1px solid rgba(184,137,42,.15);color:var(--dim);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:12px;margin:2px}
+.fc-thinking{display:flex;align-items:center;gap:12px;color:var(--dim);font-family:var(--font-m);font-size:10px;letter-spacing:2px}
+.fc-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.fc-preset{background:rgba(255,255,255,.03);border:1px solid rgba(184,137,42,.12);color:var(--dim);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:5px 12px;border-radius:var(--r);transition:all .2s}
+.fc-preset:hover{border-color:rgba(184,137,42,.3);color:var(--paper);background:rgba(184,137,42,.05)}
+.api-key-wrap{display:none;margin-bottom:16px}
+.api-key-wrap.show{display:block}
+
+/* ── SOBRE / BIO ───────────────────────────────────────── */
+#sobre{background:linear-gradient(180deg,#080604,#0B0906)}
+.bio-grid{display:grid;grid-template-columns:1fr 1.7fr;gap:80px;align-items:start}
+.bio-photo{width:100%;aspect-ratio:3/4;border-radius:var(--r);background:linear-gradient(135deg,#1A1510,#0F1A15);border:1px solid rgba(184,137,42,.2);position:relative;overflow:hidden;display:flex;align-items:flex-end}
+.bio-photo-overlay{position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(184,137,42,.025) 0,rgba(184,137,42,.025) 1px,transparent 1px,transparent 14px),repeating-linear-gradient(-45deg,rgba(29,92,92,.03) 0,rgba(29,92,92,.03) 1px,transparent 1px,transparent 14px)}
+.bio-photo-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:88px;opacity:.05}
+.bio-photo-caption{position:relative;z-index:1;width:100%;padding:22px 20px;background:linear-gradient(0deg,rgba(11,9,6,.97) 0%,transparent 70%)}
+.bio-photo-name{font-family:var(--font-d);font-size:17px;color:var(--paper);font-weight:600}
+.bio-photo-role{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-top:4px}
+.bio-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(184,137,42,.1);border:1px solid rgba(184,137,42,.1);border-radius:var(--r);margin-top:18px;overflow:hidden}
+.stat{background:var(--ink);padding:16px;text-align:center}
+.stat-n{font-family:var(--font-d);font-size:28px;font-weight:800;color:var(--gold2);line-height:1}
+.stat-l{font-family:var(--font-m);font-size:8px;letter-spacing:1.5px;color:var(--dim);margin-top:4px}
+.bio-sticky{position:sticky;top:110px}
+.hitos{margin-top:36px;border-left:1px solid rgba(184,137,42,.18);padding-left:26px}
+.hito{margin-bottom:22px;position:relative}
+.hito::before{content:'';position:absolute;left:-31px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px rgba(184,137,42,.35)}
+.hito-year{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.hito-t{font-family:var(--font-d);font-size:15px;color:var(--paper);font-weight:600;margin-bottom:3px}
+.hito-d{font-size:13px;color:var(--dim);line-height:1.6}
+
+/* ── MEGA ───────────────────────────────────────────────── */
+#mega{background:#07060A}
+.mega-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:rgba(184,137,42,.08);border:1px solid rgba(184,137,42,.08);border-radius:10px;overflow:hidden}
+.mega-card{background:var(--ink);padding:38px 34px;cursor:default;position:relative;overflow:hidden;transition:background .3s}
+.mega-card:hover{background:#110D08}
+.mega-card::before{content:attr(data-n);position:absolute;top:16px;right:20px;font-family:var(--font-d);font-size:90px;font-weight:800;color:rgba(184,137,42,.03);line-height:1;pointer-events:none}
+.mega-icon{font-size:30px;margin-bottom:18px}
+.mega-accent{width:28px;height:2px;border-radius:2px;margin-bottom:16px}
+.mega-title{font-family:var(--font-d);font-size:21px;font-weight:600;color:var(--paper);margin-bottom:11px;line-height:1.2}
+.mega-desc{font-size:13px;color:var(--dim);line-height:1.75;margin-bottom:18px}
+.mega-caps{display:flex;flex-direction:column;gap:5px}
+.mega-cap{font-size:12px;color:#6A5A3A;padding-left:10px;border-left:2px solid rgba(184,137,42,.18);line-height:1.35}
+
+/* ── DIPLOMADOS ─────────────────────────────────────────── */
+#diplomados{background:#060504}
+.dipl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.dipl-card{background:rgba(184,137,42,.04);border:1px solid rgba(184,137,42,.12);border-radius:var(--r);padding:28px 24px;position:relative;transition:all .3s}
+.dipl-card:hover{border-color:rgba(184,137,42,.35);background:rgba(184,137,42,.07);transform:translateY(-2px)}
+.dipl-badge{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--ink);font-family:var(--font-m);font-size:8px;letter-spacing:1px;padding:3px 10px;border-radius:20px;font-weight:600}
+.dipl-loc{font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dipl-title{font-family:var(--font-d);font-size:19px;font-weight:600;color:var(--paper);margin-bottom:9px;line-height:1.25}
+.dipl-desc{font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:18px}
+.dipl-features{margin-bottom:18px}
+.dipl-f{font-size:12px;color:#8A7A5A;padding:3px 0;display:flex;gap:8px}
+.dipl-f::before{content:'◆';color:var(--gold);font-size:8px;flex-shrink:0;margin-top:5px}
+
+/* ── BLOG ───────────────────────────────────────────────── */
+#blog{background:#080604}
+.blog-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.blog-main{background:rgba(184,137,42,.04);border:1px solid rgba(184,137,42,.15);border-radius:10px;overflow:hidden;transition:border-color .3s}
+.blog-main:hover{border-color:rgba(184,137,42,.3)}
+.blog-main-head{padding:34px 34px 22px;background:linear-gradient(135deg,rgba(29,92,92,.1),rgba(184,137,42,.05));border-bottom:1px solid rgba(184,137,42,.1)}
+.blog-main-body{padding:26px 34px}
+.blog-meta{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:9px}
+.blog-main-title{font-family:var(--font-d);font-size:24px;font-weight:600;color:var(--paper);line-height:1.25;margin-bottom:10px}
+.blog-excerpt{font-size:13px;color:var(--dim);line-height:1.8}
+.blog-sidebar{display:flex;flex-direction:column;gap:12px}
+.blog-mini{border:1px solid rgba(184,137,42,.1);border-radius:var(--r);padding:18px;transition:all .3s}
+.blog-mini:hover{border-color:rgba(184,137,42,.25);background:rgba(184,137,42,.03)}
+.blog-mini-title{font-family:var(--font-d);font-size:14px;font-weight:600;color:var(--paper);line-height:1.3;margin-bottom:5px}
+.blog-mini-desc{font-size:12px;color:var(--dim)}
+
+/* ── NEWSLETTER ─────────────────────────────────────────── */
+#newsletter{background:linear-gradient(135deg,#0B0906,#060D0A);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.nl-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.nl-form{display:flex;gap:10px;margin-top:22px}
+.nl-input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(184,137,42,.2);border-radius:var(--r);color:var(--paper);font-family:var(--font-b);font-size:14px;padding:12px 16px;outline:none;transition:border-color .2s}
+.nl-input:focus{border-color:var(--gold)}
+.nl-tiers{display:flex;flex-direction:column;gap:10px}
+.nl-tier{border:1px solid rgba(184,137,42,.1);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px}
+.nl-tier.featured{border-color:rgba(184,137,42,.3);background:rgba(184,137,42,.04)}
+.nl-tier-name{font-family:var(--font-d);font-size:15px;color:var(--paper);font-weight:600}
+.nl-tier-desc{font-size:12px;color:var(--dim);margin-top:2px}
+.nl-tier-price{margin-left:auto;font-family:var(--font-m);font-size:12px;color:var(--gold2);white-space:nowrap;text-align:right}
+
+/* ── CONTACTO ───────────────────────────────────────────── */
+#contacto{background:#060504}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.contact-item{display:flex;gap:14px;margin-bottom:24px;align-items:flex-start}
+.contact-icon{width:40px;height:40px;border-radius:var(--r);background:rgba(184,137,42,.07);border:1px solid rgba(184,137,42,.12);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.contact-label{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
+.contact-val{font-size:14px;color:var(--mist)}
+.social-links{display:flex;gap:10px;margin-top:30px}
+.social-btn{width:38px;height:38px;border:1px solid rgba(184,137,42,.18);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--dim);transition:all .25s}
+.social-btn:hover{border-color:var(--gold);color:var(--gold2);background:rgba(184,137,42,.07)}
+.form-field{margin-bottom:16px}
+.form-label{font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--dim);display:block;margin-bottom:6px}
+.form-input,.form-textarea,.form-select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(184,137,42,.18);border-radius:var(--r);color:var(--paper);font-family:var(--font-b);font-size:14px;padding:12px 14px;transition:border-color .2s;outline:none}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--gold)}
+.form-textarea{min-height:100px;resize:vertical}
+.form-select{appearance:none}
+
+/* ── PLATAFORMAS ────────────────────────────────────────── */
+#plataformas{background:#070605;border-top:1px solid rgba(184,137,42,.07)}
+.plat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.plat-card{background:rgba(255,255,255,.02);border:1px solid rgba(184,137,42,.08);border-radius:var(--r);padding:18px 14px;text-align:center;transition:all .3s}
+.plat-card:hover{border-color:rgba(184,137,42,.22);transform:translateY(-2px)}
+.plat-emoji{font-size:24px;margin-bottom:8px}
+.plat-name{font-family:var(--font-d);font-size:13px;color:var(--paper);font-weight:600;margin-bottom:4px}
+.plat-purpose{font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:6px}
+.plat-free{font-family:var(--font-m);font-size:8px;color:#2D7D46;letter-spacing:.5px}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer{background:#050403;border-top:1px solid rgba(184,137,42,.08);padding:36px 0 24px}
+.footer-inner{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.footer-logo{font-family:var(--font-d);font-size:18px;color:var(--paper);font-weight:600;margin-bottom:6px}
+.footer-logo span{color:var(--gold2)}
+.footer-copy{font-family:var(--font-m);font-size:8px;letter-spacing:1px;color:#3A3020}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{font-family:var(--font-m);font-size:8px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+.footer-links a:hover{color:var(--gold2)}
+
+/* ── TOAST ──────────────────────────────────────────────── */
+.toast{position:fixed;bottom:28px;right:28px;background:#1A1510;border:1px solid var(--gold);color:var(--paper);padding:13px 20px;border-radius:var(--r);font-family:var(--font-m);font-size:11px;letter-spacing:1px;z-index:1000;transform:translateY(70px);opacity:0;transition:all .4s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ══════════════════════════════════════════════════════════
+   CENTRO DE CONOCIMIENTO
+══════════════════════════════════════════════════════════ */
+#conocimiento { background: #060405; }
+.know-intro { max-width: 720px; margin-bottom: 40px; }
+
+/* discipline tabs */
+.disc-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 36px; }
+.disc-tab {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(184,137,42,.1);
+  color: var(--dim);
+  font-family: var(--font-m); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 9px 16px; border-radius: var(--r); cursor: pointer; transition: all .22s; white-space: nowrap;
+}
+.disc-tab:hover { border-color: rgba(184,137,42,.3); color: var(--paper); }
+.disc-tab.active { border-color: var(--gold); background: rgba(184,137,42,.1); color: var(--gold2); font-weight: 600; }
+.disc-tab-icon { font-size: 15px; }
+.disc-tab-count { background: rgba(184,137,42,.15); color: var(--gold); font-family: var(--font-m); font-size: 8px; padding: 1px 6px; border-radius: 10px; margin-left: 2px; }
+
+/* filter bar */
+.know-filters { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+.know-filter-label { font-family: var(--font-m); font-size: 9px; letter-spacing: 2px; color: var(--dim); }
+.know-filter-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.kf-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.07);
+  color: var(--dim); font-family: var(--font-m); font-size: 8px; letter-spacing: 1.5px;
+  padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .2s;
+}
+.kf-btn:hover { border-color: rgba(184,137,42,.3); color: var(--paper); }
+.kf-btn.active { background: rgba(184,137,42,.12); border-color: var(--gold); color: var(--gold2); }
+
+/* search bar */
+.know-search-wrap { position: relative; margin-bottom: 28px; }
+.know-search {
+  width: 100%; background: rgba(255,255,255,.03); border: 1px solid rgba(184,137,42,.15);
+  border-radius: var(--r); color: var(--paper); font-family: var(--font-b); font-size: 13px;
+  padding: 11px 16px 11px 42px; outline: none; transition: border-color .2s;
+}
+.know-search:focus { border-color: var(--gold); }
+.know-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+
+/* resource grid */
+.know-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.know-panel { display: none; }
+.know-panel.active { display: block; }
+
+.res-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(184,137,42,.1);
+  border-radius: var(--r);
+  padding: 20px 18px;
+  transition: all .25s;
+  position: relative;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.res-card:hover { border-color: rgba(184,137,42,.3); background: rgba(184,137,42,.05); transform: translateY(-2px); }
+.res-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.res-logo {
+  width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.res-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.res-type {
+  font-family: var(--font-m); font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 10px; border: 1px solid currentColor; white-space: nowrap;
+}
+.type-journal    { color: #5ABCF5; border-color: rgba(90,188,245,.3); }
+.type-think      { color: #C47AE8; border-color: rgba(196,122,232,.3); }
+.type-research   { color: #6DD98C; border-color: rgba(109,217,140,.3); }
+.type-database   { color: #F5C37A; border-color: rgba(245,195,122,.3); }
+.type-report     { color: #F87171; border-color: rgba(248,113,113,.3); }
+.type-network    { color: #A78BFA; border-color: rgba(167,139,250,.3); }
+.type-media      { color: #FB923C; border-color: rgba(251,146,60,.3); }
+
+.res-alert {
+  font-family: var(--font-m); font-size: 7px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 10px; white-space: nowrap; display: flex; align-items: center; gap: 4px;
+}
+.alert-new    { background: rgba(74,222,128,.12); color: #4ADE80; }
+.alert-hot    { background: rgba(248,113,113,.12); color: #F87171; }
+.alert-recent { background: rgba(251,191,36,.12);  color: #FBBF24; }
+.alert-live   { background: rgba(90,188,245,.12);  color: #5ABCF5; }
+
+.res-name { font-family: var(--font-d); font-size: 15px; font-weight: 600; color: var(--paper); line-height: 1.25; }
+.res-org { font-family: var(--font-m); font-size: 8px; letter-spacing: 1.5px; color: var(--gold); margin-top: -6px; }
+.res-desc { font-size: 12px; color: var(--dim); line-height: 1.65; flex: 1; }
+.res-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.res-tag { font-family: var(--font-m); font-size: 7px; letter-spacing: 1px; color: #4A3A20; background: rgba(184,137,42,.07); border: 1px solid rgba(184,137,42,.12); padding: 2px 7px; border-radius: 8px; }
+.res-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.04); }
+.res-impact { font-family: var(--font-m); font-size: 8px; letter-spacing: 1px; color: var(--dim); }
+.res-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-m); font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold2); padding: 5px 12px; border: 1px solid rgba(184,137,42,.25);
+  border-radius: 4px; transition: all .2s; white-space: nowrap;
+}
+.res-link:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+
+/* alerts banner */
+.know-alerts { margin-bottom: 28px; display: flex; flex-direction: column; gap: 8px; }
+.know-alert-item {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,.02); border: 1px solid rgba(184,137,42,.12);
+  border-left: 3px solid var(--gold); border-radius: var(--r);
+  padding: 12px 16px; cursor: pointer; transition: all .2s;
+}
+.know-alert-item:hover { background: rgba(184,137,42,.05); border-color: rgba(184,137,42,.3); }
+.know-alert-badge { font-family: var(--font-m); font-size: 8px; letter-spacing: 1.5px; padding: 3px 9px; border-radius: 10px; flex-shrink: 0; }
+.ka-new    { background: rgba(74,222,128,.15); color: #4ADE80; }
+.ka-hot    { background: rgba(248,113,113,.15); color: #F87171; }
+.ka-recent { background: rgba(251,191,36,.15);  color: #FBBF24; }
+.know-alert-text { font-size: 12px; color: var(--mist); flex: 1; line-height: 1.4; }
+.know-alert-src { font-family: var(--font-m); font-size: 8px; letter-spacing: 1px; color: var(--dim); flex-shrink: 0; }
+.know-alert-x { font-family: var(--font-m); font-size: 11px; color: var(--dim); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all .2s; }
+.know-alert-x:hover { background: rgba(255,255,255,.05); color: var(--paper); }
+
+/* stats row */
+.know-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; padding: 16px 20px; background: rgba(184,137,42,.04); border: 1px solid rgba(184,137,42,.1); border-radius: var(--r); }
+.know-stat { text-align: center; }
+.know-stat-n { font-family: var(--font-d); font-size: 22px; font-weight: 700; color: var(--gold2); line-height: 1; }
+.know-stat-l { font-family: var(--font-m); font-size: 8px; letter-spacing: 1.5px; color: var(--dim); margin-top: 3px; }
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:960px){
+  .bio-grid,.fc-grid,.nl-grid,.contact-grid{grid-template-columns:1fr;gap:40px}
+  .bio-sticky{position:static}
+  .mega-grid,.dipl-grid,.blog-grid,.news-grid,.know-grid{grid-template-columns:1fr}
+  .plat-grid{grid-template-columns:1fr 1fr}
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:flex}
+  .obs-map-wrap{height:420px}
+  .nl-form{flex-direction:column}
+  .disc-tabs{gap:4px}
+}
+@media(max-width:600px){
+  .container{padding:0 18px}
+  .section{padding:56px 0}
+  .plat-grid{grid-template-columns:1fr}
+  .obs-map-wrap{height:340px}
+  .layer-toggles{flex-direction:column;gap:6px}
+  .fc-actions{flex-direction:column}
+}
+  </style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Mensaje enviado</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="closeMobile()">✕</button>
+  <a href="#sobre" onclick="closeMobile()" data-i18n="nav_perfil">Perfil</a>
+  <a href="#mega" onclick="closeMobile()">Mega</a>
+  <a href="#observatorio" onclick="closeMobile()" data-i18n="nav_obs">Observatorio</a>
+  <a href="#noticias" onclick="closeMobile()" data-i18n="nav_news">Noticias</a>
+  <a href="#factchecker" onclick="closeMobile()">Fact-Checker</a>
+  <a href="#conocimiento" onclick="closeMobile()" data-i18n="nav_know">Conocimiento</a>
+  <a href="#diplomados" onclick="closeMobile()" data-i18n="nav_dipl">Diplomados</a>
+  <a href="#contacto" onclick="closeMobile()" data-i18n="nav_contact">Contacto</a>
+</div>
+
+<!-- LANGUAGE BAR -->
+<div class="lang-bar" style="position:relative;z-index:101;margin-top:0" id="langBar">
+  <div class="container">
+    <div class="lang-inner">
+      <span class="lang-notice" data-i18n="lang_notice">Sitio disponible en múltiples idiomas</span>
+      <div class="lang-btns">
+        <button class="lang-btn active" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('pt')">PT</button>
+        <button class="lang-btn" onclick="setLang('fr')">FR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar" style="top:41px">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">Tomás <span>Camacho</span></a>
+      <ul class="nav-links">
+        <li><a href="#sobre" data-i18n="nav_perfil">Perfil</a></li>
+        <li><a href="#mega">Mega</a></li>
+        <li><a href="#observatorio" data-i18n="nav_obs">Observatorio</a></li>
+        <li><a href="#noticias" data-i18n="nav_news">Noticias</a></li>
+        <li><a href="#factchecker">Fact-Checker</a></li>
+        <li><a href="#conocimiento" data-i18n="nav_know">Conocimiento</a></li>
+        <li><a href="#diplomados" data-i18n="nav_dipl">Diplomados</a></li>
+        <li><a href="#contacto" data-i18n="nav_contact">Contacto</a></li>
+      </ul>
+      <div class="nav-cta" style="display:flex;gap:10px">
+        <a href="#factchecker" class="btn" style="padding:7px 16px;font-size:9px;display:flex;gap:6px;align-items:center"><span>🔍</span><span data-i18n="fc_btn_short">Fact-Checker</span></a>
+        <a href="#diplomados" class="btn btn-solid" style="padding:7px 16px;font-size:9px" data-i18n="nav_dipl">Diplomados</a>
+      </div>
+      <button class="hamburger" onclick="openMobile()"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════ HERO ════════════ -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow" data-i18n="hero_eyebrow">Dr. Ciencias Gerenciales · ULAC · IAEDPG · CNEH</div>
+      <h1 class="h1 hero-title" style="margin-bottom:0">
+        <span data-i18n="hero_line1">Geopolítica,</span><br/>
+        <span data-i18n="hero_line2">Gerencia y</span><br/>
+        <em data-i18n="hero_line3">Sur Global</em>
+      </h1>
+      <p class="hero-subtitle" data-i18n="hero_sub">Investigador, docente y consultor venezolano con más de 25 años articulando pensamiento crítico, políticas públicas y cooperación Sur-Sur entre América Latina, África y el mundo.</p>
+      <div class="hero-tags">
+        <span class="tag" data-i18n="tag_geo">Geopolítica</span>
+        <span class="tag" data-i18n="tag_ger">Ciencias Gerenciales</span>
+        <span class="tag" data-i18n="tag_pp">Políticas Públicas</span>
+        <span class="tag">África</span>
+        <span class="tag">Venezuela</span>
+        <span class="tag" data-i18n="tag_sur">Sur Global</span>
+        <span class="tag" data-i18n="tag_dip">Diplomacia</span>
+        <span class="tag" data-i18n="tag_int">Integración Regional</span>
+      </div>
+      <div class="hero-cta">
+        <a href="#observatorio" class="btn btn-solid">🗺️ <span data-i18n="hero_cta1">Observatorio</span></a>
+        <a href="#factchecker" class="btn">🔍 <span data-i18n="hero_cta2">Fact-Checker</span></a>
+        <a href="#mega" class="btn" style="border-color:rgba(184,137,42,.3)" data-i18n="hero_cta3">Proyecto Mega</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll" data-i18n="scroll_lbl">scroll</div>
+</section>
+
+<!-- TICKER CREDENCIALES -->
+<div class="cred-strip-wrap">
+  <div class="container" style="overflow:hidden">
+    <div class="cred-scroll" id="credScroll">
+      <!-- duplicado para loop continuo -->
+      <div class="cred-item"><div class="cred-dot"></div><span>Dr. Ciencias Gerenciales</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Maestría Integración Regional ALC-UE</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Diplomado CLACSO Geopolítica</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>ULAC · IAEDPG Pedro Gual</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Investigador CNEH</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Viceministro Economía Comunal</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Escuela Oliver Tambo · Pretoria</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Liga de Amistad · Luanda</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Geopolítica de Paz · 3 Continentes</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>polpubpp@gmail.com</span></div><span class="cred-sep">·</span>
+      <!-- duplicate for seamless loop -->
+      <div class="cred-item"><div class="cred-dot"></div><span>Dr. Ciencias Gerenciales</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Maestría Integración Regional ALC-UE</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Diplomado CLACSO Geopolítica</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>ULAC · IAEDPG Pedro Gual</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Investigador CNEH</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Viceministro Economía Comunal</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Escuela Oliver Tambo · Pretoria</span></div><span class="cred-sep">·</span>
+      <div class="cred-item"><div class="cred-dot"></div><span>Liga de Amistad · Luanda</span></div><span class="cred-sep">·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ OBSERVATORIO ════════════ -->
+<section id="observatorio">
+  <div class="obs-header">
+    <div class="container">
+      <div class="fade-in">
+        <span class="label" data-i18n="obs_label">Observatorio Geopolítico</span>
+        <h2 class="h2" data-i18n="obs_title">Mapa del Poder Global</h2>
+        <p class="body-text" style="max-width:640px" data-i18n="obs_desc">Tres capas analíticas superpuestas sobre la cartografía del mundo: dinámica geopolítica, arquitectura geoeconómica-geofinanciera y posicionamiento geoestratégico. Haga clic en cualquier marcador para información detallada.</p>
+      </div>
+      <div class="obs-controls fade-in delay-1">
+        <div class="layer-toggles">
+          <button class="layer-btn active-geo1" id="btn-geo1" onclick="toggleLayer('geo1')">
+            <span class="dot" style="background:var(--geo1)"></span>
+            <span data-i18n="layer1">Capa Geopolítica</span>
+          </button>
+          <button class="layer-btn active-geo2" id="btn-geo2" onclick="toggleLayer('geo2')">
+            <span class="dot" style="background:var(--geo2)"></span>
+            <span data-i18n="layer2">Capa Geoeconómica-Geofinanciera</span>
+          </button>
+          <button class="layer-btn active-geo3" id="btn-geo3" onclick="toggleLayer('geo3')">
+            <span class="dot" style="background:var(--geo3)"></span>
+            <span data-i18n="layer3">Capa Geoestratégica</span>
+          </button>
+        </div>
+        <div style="font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;color:var(--dim)" data-i18n="obs_hint">
+          🖱 Clic en marcadores · Scroll para zoom · Arrastre para navegar
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="obs-map-wrap">
+    <div id="map-loading" class="map-loading">
+      <div class="spinner"></div>
+      <span data-i18n="map_loading">Cargando observatorio…</span>
+    </div>
+    <div id="obs-map"></div>
+    <div class="map-legend">
+      <div class="legend-title" data-i18n="legend_title">Leyenda de capas</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--geo1)"></div><span data-i18n="leg1">Conflictos / Alianzas / Soberanía</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--geo2)"></div><span data-i18n="leg2">Comercio / Finanzas / Bloques económicos</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--geo3)"></div><span data-i18n="leg3">Recursos / Infraestructura / Bases</span></div>
+    </div>
+    <div class="map-source">© OpenStreetMap · CartoDB · Tomás Camacho Observatorio 2025</div>
+  </div>
+</section>
+
+<!-- ════════════ NOTICIAS ════════════ -->
+<section id="noticias" class="section">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap;gap:16px" class="fade-in">
+      <div>
+        <span class="label" data-i18n="news_label">Noticias en Tiempo Real</span>
+        <h2 class="h2" data-i18n="news_title">Pulso Mundial</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="news-live-dot" style="flex-shrink:0"></div>
+        <span style="font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--dim)" data-i18n="news_live">En vivo · Actualización automática</span>
+      </div>
+    </div>
+    <div class="news-tabs" id="newsTabs">
+      <button class="news-tab active" onclick="loadNews('world','🌐')" data-continent="world">
+        <span class="news-continent-icon">🌐</span><span data-i18n="cont_world">Global</span>
+      </button>
+      <button class="news-tab" onclick="loadNews('americas','🌎')" data-continent="americas">
+        <span class="news-continent-icon">🌎</span><span data-i18n="cont_am">Américas</span>
+      </button>
+      <button class="news-tab" onclick="loadNews('europe','🇪🇺')" data-continent="europe">
+        <span class="news-continent-icon">🇪🇺</span><span data-i18n="cont_eu">Europa</span>
+      </button>
+      <button class="news-tab" onclick="loadNews('africa','🌍')" data-continent="africa">
+        <span class="news-continent-icon">🌍</span><span data-i18n="cont_af">África</span>
+      </button>
+      <button class="news-tab" onclick="loadNews('asia','🌏')" data-continent="asia">
+        <span class="news-continent-icon">🌏</span><span data-i18n="cont_as">Asia-Pacífico</span>
+      </button>
+      <button class="news-tab" onclick="loadNews('mideast','🕌')" data-continent="mideast">
+        <span class="news-continent-icon">🕌</span><span data-i18n="cont_me">Medio Oriente</span>
+      </button>
+    </div>
+    <div class="news-grid" id="newsGrid">
+      <div class="news-loading"><div class="spinner"></div><span data-i18n="news_loading">Cargando noticias…</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ FACT CHECKER ════════════ -->
+<section id="factchecker" class="section">
+  <div class="container">
+    <div class="fc-grid">
+      <div class="fade-in">
+        <span class="label" data-i18n="fc_label">Herramienta de Verificación</span>
+        <h2 class="h2" data-i18n="fc_title">Fact-Checker Geopolítico</h2>
+        <p class="body-text" data-i18n="fc_desc">Verifique afirmaciones sobre geopolítica, política internacional, economía global y hechos históricos con análisis crítico basado en fuentes académicas.</p>
+        <div class="fc-how">
+          <div class="fc-step">
+            <div class="fc-step-num">1</div>
+            <div class="fc-step-text" data-i18n="fc_step1">Ingrese su clave API de Anthropic (gratuita en console.anthropic.com). Solo se usa en su navegador, nunca se guarda.</div>
+          </div>
+          <div class="fc-step">
+            <div class="fc-step-num">2</div>
+            <div class="fc-step-text" data-i18n="fc_step2">Escriba o pegue la afirmación que desea verificar. Puede ser una noticia, declaración política o dato histórico.</div>
+          </div>
+          <div class="fc-step">
+            <div class="fc-step-num">3</div>
+            <div class="fc-step-text" data-i18n="fc_step3">Reciba un análisis con veredicto, nivel de veracidad, contexto crítico y fuentes académicas recomendadas.</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding:16px;background:rgba(184,137,42,.04);border:1px solid var(--border);border-radius:var(--r)">
+          <div style="font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:10px" data-i18n="fc_about_label">SOBRE LA HERRAMIENTA</div>
+          <p style="font-size:13px;color:var(--dim);line-height:1.7" data-i18n="fc_about">El fact-checker utiliza Claude (Anthropic) con un sistema de instrucciones especializado en geopolítica, historia del Sur Global y política internacional, desarrollado desde la perspectiva académica del Dr. Camacho.</p>
+        </div>
+      </div>
+      <div class="fade-in delay-2">
+        <div class="fc-panel">
+          <div class="fc-api-notice">
+            <span>🔑</span>
+            <div>
+              <strong style="color:var(--paper);font-family:var(--font-m);font-size:10px;letter-spacing:1px" data-i18n="fc_api_need">CLAVE API REQUERIDA</strong><br/>
+              <span data-i18n="fc_api_info">Obtenga su clave gratis en </span><a href="https://console.anthropic.com" target="_blank" style="color:var(--teal)">console.anthropic.com</a>. <span data-i18n="fc_api_free">Nivel gratuito disponible.</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" data-i18n="fc_key_label">Clave API (sk-ant-...)</label>
+            <input type="password" class="fc-input" id="fcApiKey" placeholder="sk-ant-api03-..." />
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px" data-i18n="fc_presets_label">EJEMPLOS RÁPIDOS</div>
+            <div class="fc-presets" id="fcPresets"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" data-i18n="fc_claim_label">Afirmación a verificar</label>
+            <textarea class="fc-textarea" id="fcClaim" data-i18n-ph="fc_placeholder" placeholder="Ejemplo: 'El Sur Global representa más del 50% del PIB mundial en paridad de poder adquisitivo'..."></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label" data-i18n="fc_context_label">Contexto adicional (opcional)</label>
+            <input type="text" class="fc-input" id="fcContext" data-i18n-ph="fc_ctx_ph" placeholder="Fuente, autor, fecha de la afirmación…"/>
+          </div>
+          <div class="fc-actions">
+            <button class="btn btn-solid" style="flex:1;justify-content:center" onclick="runFactCheck()" id="fcBtn">
+              🔍 <span data-i18n="fc_run">Verificar ahora</span>
+            </button>
+            <button class="btn" style="padding:11px 16px" onclick="clearFC()" title="Limpiar">✕</button>
+          </div>
+          <div class="fc-result" id="fcResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ CENTRO DE CONOCIMIENTO ════════════ -->
+<section id="conocimiento" class="section">
+  <div class="container">
+    <div class="know-intro fade-in">
+      <span class="label" data-i18n="know_label">Centro de Conocimiento</span>
+      <h2 class="h2" data-i18n="know_title">Ecosistema Académico Global</h2>
+      <p class="body-text" data-i18n="know_desc">Revistas científicas, think tanks, centros de investigación y redes académicas de vanguardia en ciencias gerenciales, geopolítica, geoeconomía, geofinanzas, geopsiquiatría y políticas públicas. Acceso directo a las fuentes que están configurando el debate intelectual global.</p>
+    </div>
+
+    <!-- ALERTAS DE PUBLICACIONES RECIENTES -->
+    <div class="know-alerts fade-in" id="knowAlerts">
+      <div class="know-alert-item" onclick="openLink('https://foreignaffairs.com')">
+        <span class="know-alert-badge ka-hot">🔴 DESTACADO</span>
+        <span class="know-alert-text"><strong>Foreign Affairs:</strong> "The New Geopolitics of the Global South" — análisis sobre el reposicionamiento de potencias emergentes en el nuevo orden multipolar</span>
+        <span class="know-alert-src">Foreign Affairs</span>
+        <button class="know-alert-x" onclick="this.parentElement.remove();event.stopPropagation()">✕</button>
+      </div>
+      <div class="know-alert-item" onclick="openLink('https://cepal.org/es/publicaciones')">
+        <span class="know-alert-badge ka-new">🟢 NUEVO</span>
+        <span class="know-alert-text"><strong>CEPAL 2025:</strong> Perspectivas Económicas de América Latina — inversión, integración productiva y desafíos del desarrollo sostenible</span>
+        <span class="know-alert-src">CEPAL/ECLAC</span>
+        <button class="know-alert-x" onclick="this.parentElement.remove();event.stopPropagation()">✕</button>
+      </div>
+      <div class="know-alert-item" onclick="openLink('https://sipri.org/yearbook')">
+        <span class="know-alert-badge ka-recent">🟡 RECIENTE</span>
+        <span class="know-alert-text"><strong>SIPRI Yearbook 2025:</strong> Armaments, Disarmament and International Security — gasto militar global y tendencias de seguridad</span>
+        <span class="know-alert-src">SIPRI</span>
+        <button class="know-alert-x" onclick="this.parentElement.remove();event.stopPropagation()">✕</button>
+      </div>
+      <div class="know-alert-item" onclick="openLink('https://bis.org/research')">
+        <span class="know-alert-badge ka-new">🟢 NUEVO</span>
+        <span class="know-alert-text"><strong>BIS Working Papers:</strong> Nuevas arquitecturas de pago digital y desafíos para el sistema monetario internacional — implicaciones para el Sur Global</span>
+        <span class="know-alert-src">BIS</span>
+        <button class="know-alert-x" onclick="this.parentElement.remove();event.stopPropagation()">✕</button>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="know-stats fade-in delay-1">
+      <div class="know-stat"><div class="know-stat-n">7</div><div class="know-stat-l">Disciplinas</div></div>
+      <div class="know-stat"><div class="know-stat-n">80+</div><div class="know-stat-l">Recursos indexados</div></div>
+      <div class="know-stat"><div class="know-stat-n">30+</div><div class="know-stat-l">Think tanks globales</div></div>
+      <div class="know-stat"><div class="know-stat-n">25+</div><div class="know-stat-l">Revistas indexadas</div></div>
+      <div class="know-stat"><div class="know-stat-n">15+</div><div class="know-stat-l">Centros ALC-África</div></div>
+    </div>
+
+    <!-- PESTAÑAS DE DISCIPLINAS -->
+    <div class="disc-tabs fade-in">
+      <button class="disc-tab active" onclick="switchDiscipline('gerencia')" id="dtab-gerencia">
+        <span class="disc-tab-icon">🏛️</span>Ciencias Gerenciales<span class="disc-tab-count">14</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('geopolitica')" id="dtab-geopolitica">
+        <span class="disc-tab-icon">🌐</span>Geopolítica<span class="disc-tab-count">14</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('geoeconomia')" id="dtab-geoeconomia">
+        <span class="disc-tab-icon">📊</span>Geoeconomía<span class="disc-tab-count">12</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('geofinanzas')" id="dtab-geofinanzas">
+        <span class="disc-tab-icon">💰</span>Geofinanzas<span class="disc-tab-count">11</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('geopsiquiatria')" id="dtab-geopsiquiatria">
+        <span class="disc-tab-icon">🧠</span>Geopsiquiatría<span class="disc-tab-count">10</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('politica')" id="dtab-politica">
+        <span class="disc-tab-icon">📜</span>Política y PP<span class="disc-tab-count">13</span>
+      </button>
+      <button class="disc-tab" onclick="switchDiscipline('surglobal')" id="dtab-surglobal">
+        <span class="disc-tab-icon">🌍</span>Sur Global<span class="disc-tab-count">12</span>
+      </button>
+    </div>
+
+    <!-- BARRA FILTROS + BÚSQUEDA -->
+    <div class="know-filters fade-in">
+      <span class="know-filter-label">FILTRAR:</span>
+      <div class="know-filter-btns" id="knowFilters">
+        <button class="kf-btn active" onclick="filterRes('all',this)">Todos</button>
+        <button class="kf-btn" onclick="filterRes('journal',this)">Revistas</button>
+        <button class="kf-btn" onclick="filterRes('think',this)">Think Tanks</button>
+        <button class="kf-btn" onclick="filterRes('research',this)">Centros Invest.</button>
+        <button class="kf-btn" onclick="filterRes('database',this)">Bases de datos</button>
+        <button class="kf-btn" onclick="filterRes('report',this)">Reportes/Informes</button>
+        <button class="kf-btn" onclick="filterRes('network',this)">Redes académicas</button>
+      </div>
+    </div>
+    <div class="know-search-wrap fade-in">
+      <span class="know-search-icon">🔎</span>
+      <input type="text" class="know-search" id="knowSearch" placeholder="Buscar revista, think tank, institución…" oninput="searchRes(this.value)"/>
+    </div>
+
+    <!-- PANELES POR DISCIPLINA -->
+    <div id="know-panels">
+
+      <!-- ─── CIENCIAS GERENCIALES ─── -->
+      <div class="know-panel active" id="panel-gerencia">
+        <div class="know-grid" id="grid-gerencia"></div>
+      </div>
+
+      <!-- ─── GEOPOLÍTICA ─── -->
+      <div class="know-panel" id="panel-geopolitica">
+        <div class="know-grid" id="grid-geopolitica"></div>
+      </div>
+
+      <!-- ─── GEOECONOMÍA ─── -->
+      <div class="know-panel" id="panel-geoeconomia">
+        <div class="know-grid" id="grid-geoeconomia"></div>
+      </div>
+
+      <!-- ─── GEOFINANZAS ─── -->
+      <div class="know-panel" id="panel-geofinanzas">
+        <div class="know-grid" id="grid-geofinanzas"></div>
+      </div>
+
+      <!-- ─── GEOPSIQUIATRÍA ─── -->
+      <div class="know-panel" id="panel-geopsiquiatria">
+        <div class="know-grid" id="grid-geopsiquiatria"></div>
+      </div>
+
+      <!-- ─── POLÍTICA Y PP ─── -->
+      <div class="know-panel" id="panel-politica">
+        <div class="know-grid" id="grid-politica"></div>
+      </div>
+
+      <!-- ─── SUR GLOBAL ─── -->
+      <div class="know-panel" id="panel-surglobal">
+        <div class="know-grid" id="grid-surglobal"></div>
+      </div>
+
+    </div><!-- /know-panels -->
+  </div>
+</section>
+
+<div class="divider" style="max-width:var(--max)"></div>
+
+<!-- ════════════ SOBRE ════════════ -->
+
+<section id="sobre" class="section">
+  <div class="container">
+    <div class="bio-grid">
+      <div class="bio-sticky fade-in">
+        <div class="bio-photo">
+          <div class="bio-photo-overlay"></div>
+          <div class="bio-photo-icon">🌍</div>
+          <div class="bio-photo-caption">
+            <div class="bio-photo-name">Tomás H. Camacho R.</div>
+            <div class="bio-photo-role">Doctor · Investigador · Docente</div>
+          </div>
+        </div>
+        <div class="bio-stats">
+          <div class="stat"><div class="stat-n">25+</div><div class="stat-l" data-i18n="stat1">Años trayectoria</div></div>
+          <div class="stat"><div class="stat-n">4</div><div class="stat-l" data-i18n="stat2">Ejes investigación</div></div>
+          <div class="stat"><div class="stat-n">3</div><div class="stat-l" data-i18n="stat3">Continentes activos</div></div>
+          <div class="stat"><div class="stat-n">2</div><div class="stat-l" data-i18n="stat4">Inst. docentes</div></div>
+        </div>
+      </div>
+      <div class="fade-in delay-1">
+        <span class="label" data-i18n="bio_label">Perfil Curricular</span>
+        <h2 class="h2" data-i18n="bio_title">Pensamiento crítico<br/>desde el Sur Global</h2>
+        <p class="body-text" data-i18n="bio_p1">Originario del municipio Julián Mellado, estado Guárico, Venezuela. Doctor en Ciencias Gerenciales con tesis mención publicación <em>"Comunidad Global de Futuro Compartido en América Latina y el Caribe. Cosmovisión geopolítica"</em>.</p>
+        <p class="body-text" style="margin-top:16px" data-i18n="bio_p2">Profesor e investigador activo en el Doctorado en Ciencias Gerenciales de la ULAC y en la Maestría en Política Exterior del IAEDPG Pedro Gual. Investigador ad honorem del Centro Nacional de Estudios Históricos en las áreas de geopolítica, integración y comercio exterior.</p>
+        <p class="body-text" style="margin-top:16px" data-i18n="bio_p3">En 2025 elaboró e impartió el Diplomado en Geopolítica de Paz en Pretoria (Escuela Oliver Tambo), Luanda (JMPLA) y Caracas (CNEH), consolidando una red académica Sur-Sur de alcance continental.</p>
+        <div class="hitos">
+          <div class="hito"><div class="hito-year">2025</div><div class="hito-t" data-i18n="h1t">Diplomado Geopolítica de Paz</div><div class="hito-d" data-i18n="h1d">Pretoria · Luanda · Caracas. Investigador ad honorem CNEH.</div></div>
+          <div class="hito"><div class="hito-year">2015</div><div class="hito-t" data-i18n="h2t">Viceministro para la Economía Comunal</div><div class="hito-d" data-i18n="h2d">Corredactor Ley Orgánica del Poder Popular y Ley para la Economía Comunal.</div></div>
+          <div class="hito"><div class="hito-year">2013–2017</div><div class="hito-t" data-i18n="h3t">Gerente General — Corporación Cuenca del Río Tuy</div><div class="hito-d" data-i18n="h3d">Coordinación y articulación multinivel de planes del Poder Popular.</div></div>
+          <div class="hito"><div class="hito-year">2008–2012</div><div class="hito-t" data-i18n="h4t">Director de Proyectos — Ministerio Economía Comunal</div><div class="hito-d" data-i18n="h4d">Mediaciones y negociaciones internacionales con la República Islámica de Irán.</div></div>
+          <div class="hito"><div class="hito-year">2005–2007</div><div class="hito-t" data-i18n="h5t">Gerente de Proyectos — Fondo de Crédito Industrial</div><div class="hito-d" data-i18n="h5d">Facilitación del desarrollo territorial.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width:var(--max)"></div>
+
+<!-- MEGA -->
+<section id="mega" class="section">
+  <div class="container">
+    <div style="max-width:680px;margin-bottom:52px" class="fade-in">
+      <span class="label" data-i18n="mega_label">Macroproyecto Académico</span>
+      <h2 class="h2" data-i18n="mega_title">Proyecto Mega</h2>
+      <p class="body-text" data-i18n="mega_desc">Ecosistema multidisciplinario de investigación, formación y difusión articulado en cuatro ejes que integran a Venezuela, África y el Sur Global en un cuerpo de conocimiento transformador.</p>
+    </div>
+    <div class="mega-grid">
+      <div class="mega-card fade-in" data-n="I">
+        <div class="mega-accent" style="background:linear-gradient(90deg,#C8873A,#F5C37A)"></div>
+        <div class="mega-icon">⚙️</div>
+        <h3 class="mega-title" data-i18n="m1t">Gerencia, Tecnología y Políticas Públicas</h3>
+        <p class="mega-desc" data-i18n="m1d">Ecosistemas gerenciales, transformación digital, comunológica y el Estado comunal como alternativa de gestión pública.</p>
+        <div class="mega-caps">
+          <div class="mega-cap" data-i18n="m1c1">Ecosistemas gerenciales y tecnológicos</div>
+          <div class="mega-cap" data-i18n="m1c2">Comunológica y comunicación institucional</div>
+          <div class="mega-cap" data-i18n="m1c3">Gestión de políticas públicas venezolanas</div>
+          <div class="mega-cap" data-i18n="m1c4">Estado comunal y nueva racionalidad</div>
+        </div>
+      </div>
+      <div class="mega-card fade-in delay-1" data-n="II">
+        <div class="mega-accent" style="background:linear-gradient(90deg,#2D7D46,#6DD98C)"></div>
+        <div class="mega-icon">🌍</div>
+        <h3 class="mega-title" data-i18n="m2t">África — Sistemas, Redes y Movimientos</h3>
+        <p class="mega-desc" data-i18n="m2d">Redes africanas, tocoísmo, conexiones epigenéticas Luanda-Caribe y formación en historia local.</p>
+        <div class="mega-caps">
+          <div class="mega-cap" data-i18n="m2c1">Sistemas y redes políticas africanas</div>
+          <div class="mega-cap" data-i18n="m2c2">Tocoísmo: movimientos transformadores</div>
+          <div class="mega-cap" data-i18n="m2c3">Ilha de Luanda — origen latinoamericano</div>
+          <div class="mega-cap" data-i18n="m2c4">Diplomado en historia local</div>
+        </div>
+      </div>
+      <div class="mega-card fade-in delay-2" data-n="III">
+        <div class="mega-accent" style="background:linear-gradient(90deg,#1A5E8A,#5ABCF5)"></div>
+        <div class="mega-icon">🌐</div>
+        <h3 class="mega-title" data-i18n="m3t">Geopolítica, Emancipación y Sur Global</h3>
+        <p class="mega-desc" data-i18n="m3d">Geopolítica emancipadora, crisocracias, externocracias y diálogos intercivilizacionales para la construcción de paz.</p>
+        <div class="mega-caps">
+          <div class="mega-cap" data-i18n="m3c1">Geopolítica de la emancipación</div>
+          <div class="mega-cap" data-i18n="m3c2">Crisocracias y externocracias</div>
+          <div class="mega-cap" data-i18n="m3c3">Diálogos intercivilizacionales</div>
+          <div class="mega-cap" data-i18n="m3c4">Diplomado en Geopolítica de Paz</div>
+        </div>
+      </div>
+      <div class="mega-card fade-in delay-3" data-n="IV">
+        <div class="mega-accent" style="background:linear-gradient(90deg,#7B3FA0,#C47AE8)"></div>
+        <div class="mega-icon">🇻🇪</div>
+        <h3 class="mega-title" data-i18n="m4t">Venezuela — Tesis y Perspectivas</h3>
+        <p class="mega-desc" data-i18n="m4d">Análisis crítico multidimensional de Venezuela: cambios políticos, sociales y económicos; tesis comprensivas y marcos propositivos.</p>
+        <div class="mega-caps">
+          <div class="mega-cap" data-i18n="m4c1">Venezuela: la nueva era</div>
+          <div class="mega-cap" data-i18n="m4c2">Tesis para su comprensión</div>
+          <div class="mega-cap" data-i18n="m4c3">Perspectivas regionales e internacionales</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIPLOMADOS -->
+<section id="diplomados" class="section" style="background:#060504">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px" class="fade-in">
+      <div>
+        <span class="label" data-i18n="dipl_label">Formación Especializada</span>
+        <h2 class="h2" data-i18n="dipl_title">Diplomados de Alto Nivel</h2>
+      </div>
+      <a href="#contacto" class="btn btn-solid" data-i18n="dipl_cta">Inscribirse</a>
+    </div>
+    <div class="dipl-grid">
+      <div class="dipl-card fade-in">
+        <span class="dipl-badge" data-i18n="badge_active">Activo 2025</span>
+        <div class="dipl-loc">🌍 Pretoria · Luanda · Caracas</div>
+        <div class="dipl-title" data-i18n="d1t">Geopolítica de Paz</div>
+        <div class="dipl-desc" data-i18n="d1d">Análisis del orden global, dinámicas del Sur, instrumentos para la resolución pacífica de conflictos y construcción de alternativas emancipadoras.</div>
+        <div class="dipl-features">
+          <div class="dipl-f" data-i18n="d1f1">Módulos presenciales e híbridos</div>
+          <div class="dipl-f" data-i18n="d1f2">Certificado institucional</div>
+          <div class="dipl-f" data-i18n="d1f3">Red académica Sur-Sur</div>
+        </div>
+        <a href="#contacto" class="btn btn-solid" style="width:100%;justify-content:center" data-i18n="btn_enroll">Inscribirse</a>
+      </div>
+      <div class="dipl-card fade-in delay-1" style="border-color:rgba(184,137,42,.3)">
+        <span class="dipl-badge" data-i18n="badge_new">Nuevo 2025</span>
+        <div class="dipl-loc">💻 En línea · Internacional</div>
+        <div class="dipl-title" data-i18n="d2t">Gerencia Crítica y Políticas Públicas</div>
+        <div class="dipl-desc" data-i18n="d2d">Ecosistemas gerenciales, transformación digital del Estado, comunológica y modelos alternativos de gestión pública para el siglo XXI.</div>
+        <div class="dipl-features">
+          <div class="dipl-f" data-i18n="d2f1">Metodología experiencial participativa</div>
+          <div class="dipl-f" data-i18n="d2f2">Casos Venezuela, África y ALC</div>
+          <div class="dipl-f" data-i18n="d2f3">Tutoría personalizada</div>
+        </div>
+        <a href="#contacto" class="btn btn-solid" style="width:100%;justify-content:center" data-i18n="btn_enroll">Inscribirse</a>
+      </div>
+      <div class="dipl-card fade-in delay-2">
+        <span class="dipl-badge" data-i18n="badge_soon">Próximamente</span>
+        <div class="dipl-loc">🌐 Híbrido · Sur Global</div>
+        <div class="dipl-title" data-i18n="d3t">Historia Local y Memoria Colectiva</div>
+        <div class="dipl-desc" data-i18n="d3d">Metodologías de documentación, historia oral y construcción de memoria comunitaria. Angola, Venezuela y diáspora afrolatinoamericana.</div>
+        <div class="dipl-features">
+          <div class="dipl-f" data-i18n="d3f1">Trabajo de campo guiado</div>
+          <div class="dipl-f" data-i18n="d3f2">Publicación de resultados</div>
+          <div class="dipl-f" data-i18n="d3f3">Materiales en ES y PT</div>
+        </div>
+        <a href="#contacto" class="btn" style="width:100%;justify-content:center" data-i18n="btn_wait">Lista de espera</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" class="section">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px" class="fade-in">
+      <div>
+        <span class="label" data-i18n="blog_label">Reflexiones y Análisis</span>
+        <h2 class="h2" data-i18n="blog_title">Blog Académico</h2>
+      </div>
+      <a href="#newsletter" class="btn" data-i18n="blog_sub">Suscribirse →</a>
+    </div>
+    <div class="blog-grid fade-in">
+      <div class="blog-main">
+        <div class="blog-main-head">
+          <div class="blog-meta">Geopolítica · 2025</div>
+          <div class="blog-main-title" data-i18n="b1t">El Sur Global ante la reconfiguración del orden internacional: nuevas agencias, viejas asimetrías</div>
+        </div>
+        <div class="blog-main-body">
+          <p class="blog-excerpt" data-i18n="b1e">El ascenso del Sur Global como actor colectivo no es un fenómeno lineal ni homogéneo. Las tensiones entre soberanía y dependencia estructural, entre cooperación Sur-Sur y condicionamientos Norte-Sur, definen una agenda compleja que requiere marcos analíticos propios, no derivados de las tradiciones académicas dominantes…</p>
+          <div style="margin-top:20px"><a href="#newsletter" class="btn" style="font-size:9px;padding:8px 16px" data-i18n="blog_read">Suscribirse para leer →</a></div>
+        </div>
+      </div>
+      <div class="blog-sidebar">
+        <div class="blog-mini"><div class="blog-meta">Venezuela · 2025</div><div class="blog-mini-title" data-i18n="b2t">Venezuela y la nueva era: entre la resistencia y la transformación</div><div class="blog-mini-desc" data-i18n="b2d">Tesis comprensivas para entender el proceso venezolano más allá de las narrativas hegemónicas.</div></div>
+        <div class="blog-mini"><div class="blog-meta">África · 2025</div><div class="blog-mini-title" data-i18n="b3t">Tocoísmo: lo que el mundo ignora sobre la resistencia africana</div><div class="blog-mini-desc" data-i18n="b3d">El movimiento social más desconocido y profundo de Angola.</div></div>
+        <div class="blog-mini"><div class="blog-meta">Gerencia · 2024</div><div class="blog-mini-title" data-i18n="b4t">El Estado comunal como racionalidad alternativa</div><div class="blog-mini-desc" data-i18n="b4d">Reflexiones sobre comunológica y los límites de la gerencia tradicional.</div></div>
+        <div class="blog-mini"><div class="blog-meta">Geopolítica · 2024</div><div class="blog-mini-title" data-i18n="b5t">Crisocracias y externocracias: categorías para leer el Sur</div><div class="blog-mini-desc" data-i18n="b5d">Propuesta conceptual para analizar los sistemas de poder del Sur Global.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter" class="section" style="padding:64px 0">
+  <div class="container">
+    <div class="nl-grid fade-in">
+      <div>
+        <span class="label" data-i18n="nl_label">Boletín Académico</span>
+        <h2 class="h2" data-i18n="nl_title">Conocimiento directo<br/>a su correo</h2>
+        <p class="body-text" style="max-width:440px" data-i18n="nl_desc">Análisis geopolíticos, avances del Proyecto Mega y convocatorias a diplomados. Sin algoritmos.</p>
+        <div class="nl-form">
+          <input type="email" class="nl-input" id="nlEmail" data-i18n-ph="nl_ph" placeholder="su@correo.com"/>
+          <button class="btn btn-solid" onclick="suscribir()" data-i18n="nl_btn">Suscribirse</button>
+        </div>
+        <p style="font-size:11px;color:var(--dim);margin-top:9px;font-family:var(--font-m);letter-spacing:1px" data-i18n="nl_note">Sin spam · Cancele cuando quiera</p>
+      </div>
+      <div class="nl-tiers fade-in delay-2">
+        <p class="mono" style="color:var(--dim);margin-bottom:12px" data-i18n="nl_tiers">OPCIONES DE SUSCRIPCIÓN</p>
+        <div class="nl-tier"><div><div class="nl-tier-name" data-i18n="nl_t1n">Boletín gratuito</div><div class="nl-tier-desc" data-i18n="nl_t1d">Análisis semanales y artículos</div></div><div class="nl-tier-price" data-i18n="nl_t1p">Gratis</div></div>
+        <div class="nl-tier featured"><div><div class="nl-tier-name" data-i18n="nl_t2n">Suscripción Académica</div><div class="nl-tier-desc" data-i18n="nl_t2d">Investigaciones y avances del Mega</div></div><div class="nl-tier-price" data-i18n="nl_t2p">Consultar</div></div>
+        <div class="nl-tier"><div><div class="nl-tier-name" data-i18n="nl_t3n">Membresía Institucional</div><div class="nl-tier-desc" data-i18n="nl_t3d">Acceso total + descuentos en diplomados</div></div><div class="nl-tier-price" data-i18n="nl_t3p">Consultar</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATAFORMAS -->
+<section id="plataformas" style="background:#060504;padding:56px 0;border-top:1px solid rgba(184,137,42,.07)">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:32px" class="fade-in">
+      <span class="label" data-i18n="plat_label">Ecosistema Digital Gratuito</span>
+      <h2 class="h2" style="font-size:clamp(20px,2.8vw,32px)" data-i18n="plat_title">Plataformas para publicar, crecer y generar ingresos</h2>
+    </div>
+    <div class="plat-grid">
+      <div class="plat-card fade-in"><div class="plat-emoji">📬</div><div class="plat-name">Substack</div><div class="plat-purpose" data-i18n="p1">Boletín con suscriptores de pago. Artículos y membresías.</div><div class="plat-free">✓ Gratis (10% por suscriptor)</div></div>
+      <div class="plat-card fade-in delay-1"><div class="plat-emoji">🛒</div><div class="plat-name">Gumroad</div><div class="plat-purpose" data-i18n="p2">Vende PDFs, libros digitales, conferencias grabadas.</div><div class="plat-free">✓ Gratis (10% comisión)</div></div>
+      <div class="plat-card fade-in delay-2"><div class="plat-emoji">☕</div><div class="plat-name">Ko-fi</div><div class="plat-purpose" data-i18n="p3">Donaciones voluntarias de lectores. Sin comisiones.</div><div class="plat-free">✓ 100% gratuito</div></div>
+      <div class="plat-card fade-in delay-3"><div class="plat-emoji">🌐</div><div class="plat-name">GitHub Pages</div><div class="plat-purpose" data-i18n="p4">Hosting gratuito y permanente para este sitio.</div><div class="plat-free">✓ Hosting gratuito</div></div>
+      <div class="plat-card fade-in"><div class="plat-emoji">🎙️</div><div class="plat-name">Spotify Podcasts</div><div class="plat-purpose" data-i18n="p5">Podcast de geopolítica. Distribución automática.</div><div class="plat-free">✓ Gratis (monetizable)</div></div>
+      <div class="plat-card fade-in delay-1"><div class="plat-emoji">🎓</div><div class="plat-name">Academia.edu</div><div class="plat-purpose" data-i18n="p6">Publica investigaciones. Audiencia académica global.</div><div class="plat-free">✓ Perfil gratuito</div></div>
+      <div class="plat-card fade-in delay-2"><div class="plat-emoji">🔗</div><div class="plat-name">ResearchGate</div><div class="plat-purpose" data-i18n="p7">Red académica internacional. Difusión y colaboraciones.</div><div class="plat-free">✓ 100% gratuito</div></div>
+      <div class="plat-card fade-in delay-3"><div class="plat-emoji">📱</div><div class="plat-name">YouTube</div><div class="plat-purpose" data-i18n="p8">Conferencias y análisis en video. Monetizable.</div><div class="plat-free">✓ Gratis (AdSense)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto" class="section" style="background:#070605">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="fade-in">
+        <span class="label" data-i18n="ct_label">Contacto Directo</span>
+        <h2 class="h2" data-i18n="ct_title">Hablemos</h2>
+        <p class="body-text" style="margin-bottom:32px" data-i18n="ct_desc">Para consultas sobre diplomados, conferencias, investigaciones colaborativas o tutoría doctoral.</p>
+        <div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-val"><a href="mailto:polpubpp@gmail.com">polpubpp@gmail.com</a></div></div></div>
+        <div class="contact-item"><div class="contact-icon">🏛️</div><div><div class="contact-label" data-i18n="ct_doc">Docencia</div><div class="contact-val">ULAC — Doctorado Ciencias Gerenciales<br/>IAEDPG Pedro Gual — Maestría Política Exterior</div></div></div>
+        <div class="contact-item"><div class="contact-icon">🔬</div><div><div class="contact-label" data-i18n="ct_res">Investigación</div><div class="contact-val">Centro Nacional de Estudios Históricos<br/><span style="color:var(--dim);font-size:13px" data-i18n="ct_hon">Investigador ad honorem</span></div></div></div>
+        <div class="contact-item"><div class="contact-icon">🌍</div><div><div class="contact-label" data-i18n="ct_int">Internacional</div><div class="contact-val">Pretoria · Luanda · Caracas · ALC</div></div></div>
+        <div class="social-links">
+          <a href="https://www.academia.edu" target="_blank" class="social-btn" title="Academia.edu">🎓</a>
+          <a href="https://www.researchgate.net" target="_blank" class="social-btn" title="ResearchGate">🔬</a>
+          <a href="https://substack.com" target="_blank" class="social-btn" title="Substack">📬</a>
+          <a href="https://www.youtube.com" target="_blank" class="social-btn" title="YouTube">🎥</a>
+          <a href="mailto:polpubpp@gmail.com" class="social-btn" title="Email">✉️</a>
+        </div>
+      </div>
+      <div class="fade-in delay-2">
+        <div style="background:rgba(184,137,42,.04);border:1px solid var(--border);border-radius:10px;padding:34px">
+          <h3 class="h3" style="margin-bottom:5px" data-i18n="ct_form_t">Enviar mensaje</h3>
+          <p style="font-size:13px;color:var(--dim);margin-bottom:22px" data-i18n="ct_form_sub">Respondo en menos de 48 horas.</p>
+          <div class="form-field"><label class="form-label" data-i18n="f_name">Nombre</label><input type="text" class="form-input" id="ctName" data-i18n-ph="f_name_ph" placeholder="Su nombre completo"/></div>
+          <div class="form-field"><label class="form-label" data-i18n="f_email">Correo</label><input type="email" class="form-input" id="ctEmail" placeholder="su@correo.com"/></div>
+          <div class="form-field">
+            <label class="form-label" data-i18n="f_subject">Asunto</label>
+            <select class="form-select form-input" id="ctSubject">
+              <option value="" data-i18n="f_sel">Seleccione un asunto</option>
+              <option data-i18n="f_o1">Diplomado — Geopolítica de Paz</option>
+              <option data-i18n="f_o2">Diplomado — Gerencia y PP</option>
+              <option data-i18n="f_o3">Conferencia / Ponencia</option>
+              <option data-i18n="f_o4">Tutoría doctoral</option>
+              <option data-i18n="f_o5">Consultoría</option>
+              <option data-i18n="f_o6">Colaboración académica</option>
+              <option data-i18n="f_o7">Otro</option>
+            </select>
+          </div>
+          <div class="form-field"><label class="form-label" data-i18n="f_msg">Mensaje</label><textarea class="form-textarea" id="ctMsg" data-i18n-ph="f_msg_ph" placeholder="Cuénteme en qué puedo ayudarle…"></textarea></div>
+          <button class="btn btn-solid" style="width:100%;justify-content:center" onclick="enviarContacto()" data-i18n="f_send">Enviar mensaje →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="divider" style="margin-bottom:28px"></div>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">Tomás <span>Camacho</span></div>
+        <div class="footer-copy">© 2025 · Tomás Hernán Camacho Rincones · Venezuela</div>
+        <div class="footer-copy" style="margin-top:3px">polpubpp@gmail.com · Proyecto Mega</div>
+      </div>
+      <div class="footer-links">
+        <a href="#sobre" data-i18n="nav_perfil">Perfil</a>
+        <a href="#mega">Mega</a>
+        <a href="#observatorio" data-i18n="nav_obs">Observatorio</a>
+        <a href="#noticias" data-i18n="nav_news">Noticias</a>
+        <a href="#factchecker">Fact-Checker</a>
+        <a href="#diplomados" data-i18n="nav_dipl">Diplomados</a>
+        <a href="#contacto" data-i18n="nav_contact">Contacto</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+/* ── I18N ─────────────────────────────────────────────── */
+const LANGS = {
+  es: {
+    nav_perfil:'Perfil', nav_obs:'Observatorio', nav_news:'Noticias', nav_dipl:'Diplomados', nav_contact:'Contacto',
+    lang_notice:'Sitio disponible en múltiples idiomas',
+    hero_eyebrow:'Dr. Ciencias Gerenciales · ULAC · IAEDPG · CNEH',
+    hero_line1:'Geopolítica,', hero_line2:'Gerencia y', hero_line3:'Sur Global',
+    hero_sub:'Investigador, docente y consultor venezolano con más de 25 años articulando pensamiento crítico, políticas públicas y cooperación Sur-Sur entre América Latina, África y el mundo.',
+    tag_geo:'Geopolítica', tag_ger:'Ciencias Gerenciales', tag_pp:'Políticas Públicas', tag_sur:'Sur Global', tag_dip:'Diplomacia', tag_int:'Integración Regional',
+    hero_cta1:'Observatorio', hero_cta2:'Fact-Checker', hero_cta3:'Proyecto Mega',
+    scroll_lbl:'scroll',
+    obs_label:'Observatorio Geopolítico', obs_title:'Mapa del Poder Global',
+    obs_desc:'Tres capas analíticas superpuestas: dinámica geopolítica, arquitectura geoeconómica-geofinanciera y posicionamiento geoestratégico.',
+    layer1:'Capa Geopolítica', layer2:'Capa Geoeconómica-Geofinanciera', layer3:'Capa Geoestratégica',
+    obs_hint:'🖱 Clic en marcadores · Scroll para zoom · Arrastre para navegar',
+    map_loading:'Cargando observatorio…',
+    legend_title:'Leyenda', leg1:'Conflictos / Alianzas', leg2:'Comercio / Finanzas', leg3:'Recursos / Estrategia',
+    news_label:'Noticias en Tiempo Real', news_title:'Pulso Mundial', news_live:'En vivo · Actualización automática',
+    news_loading:'Cargando noticias…',
+    cont_world:'Global', cont_am:'Américas', cont_eu:'Europa', cont_af:'África', cont_as:'Asia-Pacífico', cont_me:'Medio Oriente',
+    fc_label:'Verificación Geopolítica', fc_title:'Fact-Checker Geopolítico',
+    fc_desc:'Verifique afirmaciones sobre geopolítica, política internacional y economía global con análisis crítico académico.',
+    fc_step1:'Ingrese su clave API de Anthropic (gratuita). Solo se usa localmente, nunca se guarda.',
+    fc_step2:'Escriba o pegue la afirmación que desea verificar.',
+    fc_step3:'Reciba análisis con veredicto, nivel de veracidad y fuentes académicas.',
+    fc_api_need:'CLAVE API REQUERIDA', fc_api_info:'Obtenga su clave gratis en ', fc_api_free:'Nivel gratuito disponible.',
+    fc_key_label:'Clave API (sk-ant-...)',
+    fc_presets_label:'EJEMPLOS RÁPIDOS',
+    fc_claim_label:'Afirmación a verificar',
+    fc_placeholder:'Ejemplo: "El Sur Global representa más del 50% del PIB mundial"...',
+    fc_context_label:'Contexto adicional (opcional)',
+    fc_ctx_ph:'Fuente, autor, fecha…',
+    fc_run:'Verificar ahora',
+    fc_btn_short:'Fact-Checker',
+    fc_about_label:'SOBRE LA HERRAMIENTA',
+    fc_about:'El fact-checker usa Claude con instrucciones especializadas en geopolítica, historia del Sur Global y política internacional, desarrolladas desde la perspectiva del Dr. Camacho.',
+    bio_label:'Perfil Curricular', bio_title:'Pensamiento crítico\ndesde el Sur Global',
+    bio_p1:'Originario del municipio Julián Mellado, estado Guárico, Venezuela. Doctor en Ciencias Gerenciales con tesis mención publicación.',
+    bio_p2:'Profesor e investigador en ULAC y IAEDPG Pedro Gual. Investigador ad honorem del Centro Nacional de Estudios Históricos.',
+    bio_p3:'En 2025 impartió el Diplomado en Geopolítica de Paz en Pretoria, Luanda y Caracas.',
+    stat1:'Años trayectoria', stat2:'Ejes investigación', stat3:'Continentes activos', stat4:'Inst. docentes',
+    h1t:'Diplomado Geopolítica de Paz', h1d:'Pretoria · Luanda · Caracas. Investigador ad honorem CNEH.',
+    h2t:'Viceministro para la Economía Comunal', h2d:'Corredactor Ley Orgánica del Poder Popular.',
+    h3t:'Gerente General — Corporación Cuenca del Río Tuy', h3d:'Coordinación multinivel de planes del Poder Popular.',
+    h4t:'Director de Proyectos — Ministerio Economía Comunal', h4d:'Negociaciones internacionales con Irán.',
+    h5t:'Gerente de Proyectos — Fondo de Crédito Industrial', h5d:'Facilitación del desarrollo territorial.',
+    mega_label:'Macroproyecto Académico', mega_title:'Proyecto Mega',
+    mega_desc:'Ecosistema multidisciplinario de investigación, formación y difusión articulado en cuatro ejes.',
+    m1t:'Gerencia, Tecnología y Políticas Públicas', m1d:'Ecosistemas gerenciales, transformación digital y Estado comunal.',
+    m1c1:'Ecosistemas gerenciales y tecnológicos', m1c2:'Comunológica y comunicación institucional', m1c3:'Gestión de políticas públicas venezolanas', m1c4:'Estado comunal y nueva racionalidad',
+    m2t:'África — Sistemas, Redes y Movimientos', m2d:'Redes africanas, tocoísmo y conexiones Luanda-Caribe.',
+    m2c1:'Sistemas y redes políticas africanas', m2c2:'Tocoísmo: movimientos transformadores', m2c3:'Ilha de Luanda — origen latinoamericano', m2c4:'Diplomado en historia local',
+    m3t:'Geopolítica, Emancipación y Sur Global', m3d:'Crisocracias, externocracias y diálogos intercivilizacionales.',
+    m3c1:'Geopolítica de la emancipación', m3c2:'Crisocracias y externocracias', m3c3:'Diálogos intercivilizacionales', m3c4:'Diplomado en Geopolítica de Paz',
+    m4t:'Venezuela — Tesis y Perspectivas', m4d:'Análisis crítico multidimensional de Venezuela.',
+    m4c1:'Venezuela: la nueva era', m4c2:'Tesis para su comprensión', m4c3:'Perspectivas regionales e internacionales',
+    dipl_label:'Formación Especializada', dipl_title:'Diplomados de Alto Nivel', dipl_cta:'Inscribirse',
+    badge_active:'Activo 2025', badge_new:'Nuevo 2025', badge_soon:'Próximamente',
+    d1t:'Geopolítica de Paz', d1d:'Análisis del orden global, dinámicas del Sur y construcción de alternativas emancipadoras.',
+    d1f1:'Módulos presenciales e híbridos', d1f2:'Certificado institucional', d1f3:'Red académica Sur-Sur',
+    d2t:'Gerencia Crítica y Políticas Públicas', d2d:'Ecosistemas gerenciales, transformación digital y gestión pública.',
+    d2f1:'Metodología experiencial', d2f2:'Casos Venezuela, África y ALC', d2f3:'Tutoría personalizada',
+    d3t:'Historia Local y Memoria Colectiva', d3d:'Documentación, historia oral y memoria comunitaria.',
+    d3f1:'Trabajo de campo guiado', d3f2:'Publicación de resultados', d3f3:'Materiales en ES y PT',
+    btn_enroll:'Inscribirse', btn_wait:'Lista de espera',
+    blog_label:'Reflexiones y Análisis', blog_title:'Blog Académico', blog_sub:'Suscribirse →', blog_read:'Suscribirse para leer →',
+    b1t:'El Sur Global ante la reconfiguración del orden internacional', b1e:'El ascenso del Sur Global como actor colectivo no es un fenómeno lineal ni homogéneo. Las tensiones entre soberanía y dependencia estructural definen una agenda compleja…',
+    b2t:'Venezuela y la nueva era: resistencia y transformación', b2d:'Tesis comprensivas para entender el proceso venezolano.',
+    b3t:'Tocoísmo: la resistencia africana que el mundo ignora', b3d:'El movimiento social más desconocido de Angola.',
+    b4t:'El Estado comunal como racionalidad alternativa', b4d:'Comunológica y los límites de la gerencia tradicional.',
+    b5t:'Crisocracias y externocracias: categorías para leer el Sur', b5d:'Propuesta conceptual sobre los sistemas de poder.',
+    nl_label:'Boletín Académico', nl_title:'Conocimiento directo\na su correo',
+    nl_desc:'Análisis geopolíticos, avances del Proyecto Mega y convocatorias. Sin algoritmos.',
+    nl_ph:'su@correo.com', nl_btn:'Suscribirse', nl_note:'Sin spam · Cancele cuando quiera',
+    nl_tiers:'OPCIONES DE SUSCRIPCIÓN',
+    nl_t1n:'Boletín gratuito', nl_t1d:'Análisis semanales y artículos', nl_t1p:'Gratis',
+    nl_t2n:'Suscripción Académica', nl_t2d:'Investigaciones y avances del Mega', nl_t2p:'Consultar',
+    nl_t3n:'Membresía Institucional', nl_t3d:'Acceso total + descuentos', nl_t3p:'Consultar',
+    plat_label:'Ecosistema Digital Gratuito', plat_title:'Plataformas para publicar, crecer y generar ingresos',
+    p1:'Boletín con suscriptores de pago.', p2:'Vende PDFs y libros digitales.', p3:'Donaciones voluntarias sin comisiones.', p4:'Hosting gratuito permanente.',
+    p5:'Podcast de geopolítica.', p6:'Publica investigaciones.', p7:'Red académica internacional.', p8:'Conferencias en video monetizables.',
+    ct_label:'Contacto Directo', ct_title:'Hablemos',
+    ct_desc:'Para consultas sobre diplomados, conferencias, investigaciones colaborativas o tutoría doctoral.',
+    ct_doc:'Docencia', ct_res:'Investigación', ct_int:'Internacional', ct_hon:'Investigador ad honorem',
+    ct_form_t:'Enviar mensaje', ct_form_sub:'Respondo en menos de 48 horas.',
+    f_name:'Nombre', f_name_ph:'Su nombre completo', f_email:'Correo', f_subject:'Asunto',
+    f_sel:'Seleccione un asunto', f_o1:'Diplomado — Geopolítica de Paz', f_o2:'Diplomado — Gerencia y PP',
+    f_o3:'Conferencia / Ponencia', f_o4:'Tutoría doctoral', f_o5:'Consultoría',
+    f_o6:'Colaboración académica', f_o7:'Otro',
+    f_msg:'Mensaje', f_msg_ph:'Cuénteme en qué puedo ayudarle…', f_send:'Enviar mensaje →',
+  },
+  en: {
+    nav_perfil:'Profile', nav_obs:'Observatory', nav_news:'News', nav_dipl:'Courses', nav_contact:'Contact',
+    lang_notice:'Site available in multiple languages',
+    hero_eyebrow:'Dr. Management Sciences · ULAC · IAEDPG · CNEH',
+    hero_line1:'Geopolitics,', hero_line2:'Management &', hero_line3:'Global South',
+    hero_sub:'Venezuelan researcher, educator and consultant with 25+ years articulating critical thinking, public policy and South-South cooperation across Latin America, Africa and the world.',
+    tag_geo:'Geopolitics', tag_ger:'Management Sciences', tag_pp:'Public Policy', tag_sur:'Global South', tag_dip:'Diplomacy', tag_int:'Regional Integration',
+    hero_cta1:'Observatory', hero_cta2:'Fact-Checker', hero_cta3:'Mega Project',
+    scroll_lbl:'scroll',
+    obs_label:'Geopolitical Observatory', obs_title:'Map of Global Power',
+    obs_desc:'Three analytical layers: geopolitical dynamics, geoeconomic-geofinancial architecture, and geostrategic positioning. Click any marker for detailed information.',
+    layer1:'Geopolitical Layer', layer2:'Geoeconomic-Geofinancial Layer', layer3:'Geostrategic Layer',
+    obs_hint:'🖱 Click markers · Scroll to zoom · Drag to navigate',
+    map_loading:'Loading observatory…',
+    legend_title:'Legend', leg1:'Conflicts / Alliances', leg2:'Trade / Finance', leg3:'Resources / Strategy',
+    news_label:'Real-Time News', news_title:'Global Pulse', news_live:'Live · Auto-updating',
+    news_loading:'Loading news…',
+    cont_world:'Global', cont_am:'Americas', cont_eu:'Europe', cont_af:'Africa', cont_as:'Asia-Pacific', cont_me:'Middle East',
+    fc_label:'Geopolitical Verification', fc_title:'Geopolitical Fact-Checker',
+    fc_desc:'Verify claims about geopolitics, international politics and global economy with critical academic analysis.',
+    fc_step1:'Enter your Anthropic API key (free). Used locally only, never stored.',
+    fc_step2:'Type or paste the claim you want to verify.',
+    fc_step3:'Receive analysis with verdict, truth score and academic sources.',
+    fc_api_need:'API KEY REQUIRED', fc_api_info:'Get your free key at ', fc_api_free:'Free tier available.',
+    fc_key_label:'API Key (sk-ant-...)',
+    fc_presets_label:'QUICK EXAMPLES',
+    fc_claim_label:'Claim to verify',
+    fc_placeholder:'Example: "The Global South represents over 50% of world GDP by PPP"...',
+    fc_context_label:'Additional context (optional)',
+    fc_ctx_ph:'Source, author, date…',
+    fc_run:'Verify now',
+    fc_btn_short:'Fact-Checker',
+    fc_about_label:'ABOUT THIS TOOL',
+    fc_about:"The fact-checker uses Claude with instructions specialized in geopolitics, Global South history and international politics, developed from Dr. Camacho's academic perspective.",
+    bio_label:'Curriculum Profile', bio_title:'Critical thinking\nfrom the Global South',
+    bio_p1:'From Julián Mellado municipality, Guárico state, Venezuela. PhD in Management Sciences with publication-merit thesis.',
+    bio_p2:'Professor and researcher at ULAC and IAEDPG Pedro Gual. Honorary researcher at the National Centre for Historical Studies.',
+    bio_p3:'In 2025 he designed and taught the Geopolitics of Peace Programme in Pretoria, Luanda and Caracas.',
+    stat1:'Years experience', stat2:'Research axes', stat3:'Active continents', stat4:'Academic inst.',
+    h1t:'Geopolitics of Peace Programme', h1d:'Pretoria · Luanda · Caracas. Honorary Researcher CNEH.',
+    h2t:'Vice-Minister for Communal Economy', h2d:'Co-author of the Organic Law of Popular Power.',
+    h3t:'General Manager — Tuy River Basin Corp.', h3d:'Multilevel coordination of Popular Power plans.',
+    h4t:'Projects Director — Ministry of Communal Economy', h4d:'International negotiations with Iran.',
+    h5t:'Projects Manager — Industrial Credit Fund', h5d:'Territorial development facilitation.',
+    mega_label:'Academic Macro-Project', mega_title:'Mega Project',
+    mega_desc:'Multidisciplinary ecosystem of research, training and dissemination across four axes.',
+    m1t:'Management, Technology & Public Policy', m1d:'Management ecosystems, digital transformation and communal state.',
+    m1c1:'Management and technology ecosystems', m1c2:'Communology and institutional communication', m1c3:'Venezuelan public policy management', m1c4:'Communal state and new rationality',
+    m2t:'Africa — Systems, Networks & Movements', m2d:'African networks, Toco movement and Luanda-Caribbean connections.',
+    m2c1:'African political and social networks', m2c2:'Tocoism: transformative movements', m2c3:'Ilha de Luanda — Latin American origin', m2c4:'Local history programme',
+    m3t:'Geopolitics, Emancipation & Global South', m3d:'Crisocracies, externocracies and intercivilizational dialogues.',
+    m3c1:'Emancipatory geopolitics', m3c2:'Crisocracies and externocracies', m3c3:'Intercivilizational dialogues', m3c4:'Geopolitics of Peace Programme',
+    m4t:'Venezuela — Theses & Perspectives', m4d:'Critical multidimensional analysis of Venezuela.',
+    m4c1:'Venezuela: the new era', m4c2:'Theses for its understanding', m4c3:'Regional and international perspectives',
+    dipl_label:'Specialized Training', dipl_title:'Advanced Programmes', dipl_cta:'Enroll',
+    badge_active:'Active 2025', badge_new:'New 2025', badge_soon:'Coming Soon',
+    d1t:'Geopolitics of Peace', d1d:'Global order analysis, South dynamics and emancipatory alternatives.',
+    d1f1:'In-person and hybrid modules', d1f2:'Institutional certificate', d1f3:'South-South academic network',
+    d2t:'Critical Management & Public Policy', d2d:'Management ecosystems, digital transformation and public governance.',
+    d2f1:'Experiential methodology', d2f2:'Venezuela, Africa and LAC cases', d2f3:'Personalized tutoring',
+    d3t:'Local History & Collective Memory', d3d:'Documentation, oral history and community memory.',
+    d3f1:'Guided field work', d3f2:'Publication of results', d3f3:'Materials in ES and PT',
+    btn_enroll:'Enroll', btn_wait:'Join waitlist',
+    blog_label:'Reflections & Analysis', blog_title:'Academic Blog', blog_sub:'Subscribe →', blog_read:'Subscribe to read →',
+    b1t:'The Global South facing the international order reconfiguration',
+    b1e:"The rise of the Global South as a collective actor is neither linear nor homogeneous. Tensions between sovereignty and structural dependency define a complex agenda requiring its own analytical frameworks…",
+    b2t:'Venezuela and the new era: resistance and transformation', b2d:'Comprehensive theses to understand the Venezuelan process.',
+    b3t:'Tocoism: the African resistance the world ignores', b3d:"The most unknown social movement of Angola.",
+    b4t:'The communal state as alternative rationality', b4d:'Communology and the limits of traditional management.',
+    b5t:'Crisocracies and externocracies: categories to read the South', b5d:'Conceptual proposal on power systems.',
+    nl_label:'Academic Newsletter', nl_title:'Knowledge straight\nto your inbox',
+    nl_desc:'Geopolitical analysis, Mega Project updates and programme announcements. No algorithms.',
+    nl_ph:'your@email.com', nl_btn:'Subscribe', nl_note:'No spam · Unsubscribe anytime',
+    nl_tiers:'SUBSCRIPTION OPTIONS',
+    nl_t1n:'Free newsletter', nl_t1d:'Weekly analysis and articles', nl_t1p:'Free',
+    nl_t2n:'Academic subscription', nl_t2d:'Research and Mega updates', nl_t2p:'Inquire',
+    nl_t3n:'Institutional membership', nl_t3d:'Full access + discounts', nl_t3p:'Inquire',
+    plat_label:'Free Digital Ecosystem', plat_title:'Platforms to publish, grow and generate income',
+    p1:'Newsletter with paid subscribers.', p2:'Sell PDFs and digital books.', p3:'Voluntary donations, no fees.', p4:'Free permanent hosting.',
+    p5:'Geopolitics podcast.', p6:'Publish research globally.', p7:'International academic network.', p8:'Monetizable video conferences.',
+    ct_label:'Direct Contact', ct_title:"Let's talk",
+    ct_desc:'For inquiries about programmes, conferences, collaborative research or doctoral supervision.',
+    ct_doc:'Teaching', ct_res:'Research', ct_int:'International', ct_hon:'Honorary researcher',
+    ct_form_t:'Send message', ct_form_sub:'I reply within 48 hours.',
+    f_name:'Name', f_name_ph:'Your full name', f_email:'Email', f_subject:'Subject',
+    f_sel:'Select a subject', f_o1:'Programme — Geopolitics of Peace', f_o2:'Programme — Management & PP',
+    f_o3:'Conference / Lecture', f_o4:'Doctoral supervision', f_o5:'Consultancy',
+    f_o6:'Academic collaboration', f_o7:'Other',
+    f_msg:'Message', f_msg_ph:'How can I help you?', f_send:'Send message →',
+  },
+  pt: {
+    nav_perfil:'Perfil', nav_obs:'Observatório', nav_news:'Notícias', nav_dipl:'Cursos', nav_contact:'Contato',
+    lang_notice:'Site disponível em múltiplos idiomas',
+    hero_eyebrow:'Dr. Ciências Gerenciais · ULAC · IAEDPG · CNEH',
+    hero_line1:'Geopolítica,', hero_line2:'Gerência e', hero_line3:'Sul Global',
+    hero_sub:'Investigador, docente e consultor venezuelano com mais de 25 anos articulando pensamento crítico, políticas públicas e cooperação Sul-Sul entre América Latina, África e o mundo.',
+    tag_geo:'Geopolítica', tag_ger:'Ciências Gerenciais', tag_pp:'Políticas Públicas', tag_sur:'Sul Global', tag_dip:'Diplomacia', tag_int:'Integração Regional',
+    hero_cta1:'Observatório', hero_cta2:'Fact-Checker', hero_cta3:'Projeto Mega',
+    scroll_lbl:'rolar',
+    obs_label:'Observatório Geopolítico', obs_title:'Mapa do Poder Global',
+    obs_desc:'Três camadas analíticas sobrepostas: dinâmica geopolítica, arquitetura geoeconômica-geofinanceira e posicionamento geoestratégico.',
+    layer1:'Camada Geopolítica', layer2:'Camada Geoeconômica-Geofinanceira', layer3:'Camada Geoestratégica',
+    obs_hint:'🖱 Clique nos marcadores · Scroll para zoom · Arraste para navegar',
+    map_loading:'Carregando observatório…',
+    legend_title:'Legenda', leg1:'Conflitos / Alianças', leg2:'Comércio / Finanças', leg3:'Recursos / Estratégia',
+    news_label:'Notícias em Tempo Real', news_title:'Pulso Mundial', news_live:'Ao vivo · Atualização automática',
+    news_loading:'Carregando notícias…',
+    cont_world:'Global', cont_am:'Américas', cont_eu:'Europa', cont_af:'África', cont_as:'Ásia-Pacífico', cont_me:'Oriente Médio',
+    fc_label:'Verificação Geopolítica', fc_title:'Fact-Checker Geopolítico',
+    fc_desc:'Verifique afirmações sobre geopolítica, política internacional e economia global com análise crítica acadêmica.',
+    fc_step1:'Insira sua chave API da Anthropic (gratuita). Usada localmente, nunca armazenada.',
+    fc_step2:'Escreva ou cole a afirmação que deseja verificar.',
+    fc_step3:'Receba análise com veredicto, nível de veracidade e fontes acadêmicas.',
+    fc_api_need:'CHAVE API NECESSÁRIA', fc_api_info:'Obtenha sua chave grátis em ', fc_api_free:'Nível gratuito disponível.',
+    fc_key_label:'Chave API (sk-ant-...)',
+    fc_presets_label:'EXEMPLOS RÁPIDOS',
+    fc_claim_label:'Afirmação a verificar',
+    fc_placeholder:'Exemplo: "O Sul Global representa mais de 50% do PIB mundial"...',
+    fc_context_label:'Contexto adicional (opcional)',
+    fc_ctx_ph:'Fonte, autor, data…',
+    fc_run:'Verificar agora',
+    fc_btn_short:'Fact-Checker',
+    fc_about_label:'SOBRE A FERRAMENTA',
+    fc_about:'O fact-checker usa Claude com instruções especializadas em geopolítica e história do Sul Global, desenvolvidas pela perspectiva acadêmica do Dr. Camacho.',
+    bio_label:'Perfil Curricular', bio_title:'Pensamento crítico\ndo Sul Global',
+    bio_p1:'Natural do município Julián Mellado, estado Guárico, Venezuela. Doutor em Ciências Gerenciais com tese premiada.',
+    bio_p2:'Professor e investigador na ULAC e no IAEDPG Pedro Gual. Investigador honorário do Centro Nacional de Estudos Históricos.',
+    bio_p3:'Em 2025 criou e lecionou o Curso de Geopolítica da Paz em Pretória, Luanda e Caracas.',
+    stat1:'Anos experiência', stat2:'Eixos investigação', stat3:'Continentes ativos', stat4:'Inst. docentes',
+    h1t:'Curso Geopolítica da Paz', h1d:'Pretória · Luanda · Caracas. Investigador honorário CNEH.',
+    h2t:'Vice-Ministro para a Economia Comunal', h2d:'Coautor da Lei Orgânica do Poder Popular.',
+    h3t:'Diretor Geral — Corp. Bacia do Rio Tuy', h3d:'Coordenação multinível de planos do Poder Popular.',
+    h4t:'Diretor de Projetos — Ministério Economia Comunal', h4d:'Negociações internacionais com o Irã.',
+    h5t:'Gerente de Projetos — Fundo de Crédito Industrial', h5d:'Facilitação do desenvolvimento territorial.',
+    mega_label:'Macroproyecto Acadêmico', mega_title:'Projeto Mega',
+    mega_desc:'Ecossistema multidisciplinar de pesquisa, formação e difusão em quatro eixos.',
+    m1t:'Gerência, Tecnologia e Políticas Públicas', m1d:'Ecossistemas gerenciais, transformação digital e Estado comunal.',
+    m1c1:'Ecossistemas gerenciais e tecnológicos', m1c2:'Comunologia e comunicação institucional', m1c3:'Gestão de políticas públicas', m1c4:'Estado comunal e nova racionalidade',
+    m2t:'África — Sistemas, Redes e Movimentos', m2d:'Redes africanas, tocoísmo e conexões Luanda-Caribe.',
+    m2c1:'Sistemas e redes políticas africanas', m2c2:'Tocoísmo: movimentos transformadores', m2c3:'Ilha de Luanda — origem latino-americana', m2c4:'Curso de história local',
+    m3t:'Geopolítica, Emancipação e Sul Global', m3d:'Crisocracias, externocracias e diálogos intercivilizacionais.',
+    m3c1:'Geopolítica da emancipação', m3c2:'Crisocracias e externocracias', m3c3:'Diálogos intercivilizacionais', m3c4:'Curso de Geopolítica da Paz',
+    m4t:'Venezuela — Teses e Perspectivas', m4d:'Análise crítica multidimensional da Venezuela.',
+    m4c1:'Venezuela: a nova era', m4c2:'Teses para sua compreensão', m4c3:'Perspectivas regionais e internacionais',
+    dipl_label:'Formação Especializada', dipl_title:'Cursos de Alto Nível', dipl_cta:'Inscrever-se',
+    badge_active:'Ativo 2025', badge_new:'Novo 2025', badge_soon:'Em breve',
+    d1t:'Geopolítica da Paz', d1d:'Análise da ordem global, dinâmicas do Sul e alternativas emancipatórias.',
+    d1f1:'Módulos presenciais e híbridos', d1f2:'Certificado institucional', d1f3:'Rede acadêmica Sul-Sul',
+    d2t:'Gerência Crítica e Políticas Públicas', d2d:'Ecossistemas gerenciais, transformação digital e gestão pública.',
+    d2f1:'Metodologia experiencial', d2f2:'Casos Venezuela, África e ALC', d2f3:'Tutoria personalizada',
+    d3t:'História Local e Memória Coletiva', d3d:'Documentação, história oral e memória comunitária.',
+    d3f1:'Trabalho de campo orientado', d3f2:'Publicação de resultados', d3f3:'Materiais em ES e PT',
+    btn_enroll:'Inscrever-se', btn_wait:'Lista de espera',
+    blog_label:'Reflexões e Análises', blog_title:'Blog Acadêmico', blog_sub:'Inscrever-se →', blog_read:'Inscrever-se para ler →',
+    b1t:'O Sul Global ante a reconfiguração da ordem internacional',
+    b1e:'A ascensão do Sul Global como ator coletivo não é linear. As tensões entre soberania e dependência estrutural definem uma agenda complexa que exige marcos analíticos próprios…',
+    b2t:'Venezuela e a nova era: resistência e transformação', b2d:'Teses abrangentes para entender o processo venezuelano.',
+    b3t:'Tocoísmo: a resistência africana que o mundo ignora', b3d:'O movimento social mais desconhecido de Angola.',
+    b4t:'O Estado comunal como racionalidade alternativa', b4d:'Comunologia e os limites da gerência tradicional.',
+    b5t:'Crisocracias e externocracias: categorias para ler o Sul', b5d:'Proposta conceitual sobre sistemas de poder.',
+    nl_label:'Boletim Acadêmico', nl_title:'Conhecimento direto\nao seu email',
+    nl_desc:'Análises geopolíticas, avanços do Projeto Mega e convocatórias. Sem algoritmos.',
+    nl_ph:'seu@email.com', nl_btn:'Inscrever-se', nl_note:'Sem spam · Cancele quando quiser',
+    nl_tiers:'OPÇÕES DE ASSINATURA',
+    nl_t1n:'Boletim gratuito', nl_t1d:'Análises semanais e artigos', nl_t1p:'Grátis',
+    nl_t2n:'Assinatura Acadêmica', nl_t2d:'Pesquisas e avanços do Mega', nl_t2p:'Consultar',
+    nl_t3n:'Associação Institucional', nl_t3d:'Acesso total + descontos', nl_t3p:'Consultar',
+    plat_label:'Ecossistema Digital Gratuito', plat_title:'Plataformas para publicar, crescer e gerar renda',
+    p1:'Boletim com assinantes pagos.', p2:'Venda PDFs e livros digitais.', p3:'Doações voluntárias sem comissões.', p4:'Hospedagem gratuita permanente.',
+    p5:'Podcast de geopolítica.', p6:'Publique pesquisas globalmente.', p7:'Rede acadêmica internacional.', p8:'Conferências em vídeo monetizáveis.',
+    ct_label:'Contato Direto', ct_title:'Vamos conversar',
+    ct_desc:'Para consultas sobre cursos, conferências, pesquisas colaborativas ou orientação doutoral.',
+    ct_doc:'Docência', ct_res:'Pesquisa', ct_int:'Internacional', ct_hon:'Investigador honorário',
+    ct_form_t:'Enviar mensagem', ct_form_sub:'Respondo em menos de 48 horas.',
+    f_name:'Nome', f_name_ph:'Seu nome completo', f_email:'Email', f_subject:'Assunto',
+    f_sel:'Selecione um assunto', f_o1:'Curso — Geopolítica da Paz', f_o2:'Curso — Gerência e PP',
+    f_o3:'Conferência / Palestra', f_o4:'Orientação doutoral', f_o5:'Consultoria',
+    f_o6:'Colaboração acadêmica', f_o7:'Outro',
+    f_msg:'Mensagem', f_msg_ph:'Como posso ajudá-lo?', f_send:'Enviar mensagem →',
+  },
+  fr: {
+    nav_perfil:'Profil', nav_obs:'Observatoire', nav_news:'Actualités', nav_dipl:'Formations', nav_contact:'Contact',
+    lang_notice:'Site disponible en plusieurs langues',
+    hero_eyebrow:'Dr. Sciences de Gestion · ULAC · IAEDPG · CNEH',
+    hero_line1:'Géopolitique,', hero_line2:'Gestion et', hero_line3:'Sud Global',
+    hero_sub:"Chercheur, enseignant et consultant vénézuélien avec plus de 25 ans d'articulation entre pensée critique, politiques publiques et coopération Sud-Sud.",
+    tag_geo:'Géopolitique', tag_ger:'Sciences de Gestion', tag_pp:'Politiques Publiques', tag_sur:'Sud Global', tag_dip:'Diplomatie', tag_int:'Intégration Régionale',
+    hero_cta1:'Observatoire', hero_cta2:'Fact-Checker', hero_cta3:'Projet Mega',
+    scroll_lbl:'défiler',
+    obs_label:'Observatoire Géopolitique', obs_title:'Carte du Pouvoir Mondial',
+    obs_desc:"Trois couches analytiques superposées : dynamique géopolitique, architecture géoéconomique-géofinancière et positionnement géostratégique.",
+    layer1:'Couche Géopolitique', layer2:'Couche Géoéconomique-Géofinancière', layer3:'Couche Géostratégique',
+    obs_hint:'🖱 Cliquez sur les marqueurs · Défilez pour zoomer · Faites glisser pour naviguer',
+    map_loading:'Chargement de l\'observatoire…',
+    legend_title:'Légende', leg1:'Conflits / Alliances', leg2:'Commerce / Finance', leg3:'Ressources / Stratégie',
+    news_label:'Actualités en Temps Réel', news_title:'Pouls Mondial', news_live:'En direct · Mise à jour automatique',
+    news_loading:'Chargement des actualités…',
+    cont_world:'Mondial', cont_am:'Amériques', cont_eu:'Europe', cont_af:'Afrique', cont_as:'Asie-Pacifique', cont_me:'Moyen-Orient',
+    fc_label:'Vérification Géopolitique', fc_title:'Fact-Checker Géopolitique',
+    fc_desc:'Vérifiez des affirmations sur la géopolitique, la politique internationale et l\'économie mondiale avec une analyse critique académique.',
+    fc_step1:"Entrez votre clé API Anthropic (gratuite). Utilisée localement, jamais stockée.",
+    fc_step2:"Saisissez ou collez l'affirmation que vous souhaitez vérifier.",
+    fc_step3:'Recevez une analyse avec verdict, niveau de vérité et sources académiques.',
+    fc_api_need:'CLÉ API REQUISE', fc_api_info:'Obtenez votre clé gratuite sur ', fc_api_free:'Niveau gratuit disponible.',
+    fc_key_label:'Clé API (sk-ant-...)',
+    fc_presets_label:'EXEMPLES RAPIDES',
+    fc_claim_label:"Affirmation à vérifier",
+    fc_placeholder:'Exemple : "Le Sud Global représente plus de 50% du PIB mondial en PPA"...',
+    fc_context_label:'Contexte supplémentaire (optionnel)',
+    fc_ctx_ph:'Source, auteur, date…',
+    fc_run:'Vérifier maintenant',
+    fc_btn_short:'Fact-Checker',
+    fc_about_label:"À PROPOS DE L'OUTIL",
+    fc_about:"Le fact-checker utilise Claude avec des instructions spécialisées en géopolitique et histoire du Sud Global, développées par le Dr. Camacho.",
+    bio_label:'Profil Curriculaire', bio_title:'Pensée critique\ndu Sud Global',
+    bio_p1:'Originaire de la commune Julián Mellado, état Guárico, Venezuela. Docteur en Sciences de Gestion avec thèse mention publication.',
+    bio_p2:'Professeur et chercheur à l\'ULAC et à l\'IAEDPG Pedro Gual. Chercheur honoraire du Centre National d\'Études Historiques.',
+    bio_p3:'En 2025, il a créé et enseigné la Formation en Géopolitique de la Paix à Pretoria, Luanda et Caracas.',
+    stat1:'Années expérience', stat2:'Axes de recherche', stat3:'Continents actifs', stat4:'Inst. académiques',
+    h1t:'Formation Géopolitique de la Paix', h1d:'Pretoria · Luanda · Caracas. Chercheur honoraire CNEH.',
+    h2t:'Vice-Ministre pour l\'Économie Communale', h2d:'Coauteur de la Loi Organique du Pouvoir Populaire.',
+    h3t:'Directeur Général — Corp. Bassin du Tuy', h3d:'Coordination multiniveau des plans du Pouvoir Populaire.',
+    h4t:'Directeur de Projets — Ministère Économie Communale', h4d:'Négociations internationales avec l\'Iran.',
+    h5t:'Directeur de Projets — Fonds de Crédit Industriel', h5d:'Facilitation du développement territorial.',
+    mega_label:'Macroprojet Académique', mega_title:'Projet Mega',
+    mega_desc:'Écosystème multidisciplinaire de recherche, formation et diffusion en quatre axes.',
+    m1t:'Gestion, Technologie et Politiques Publiques', m1d:'Écosystèmes de gestion, transformation numérique et État communal.',
+    m1c1:'Écosystèmes de gestion et technologiques', m1c2:'Communologie et communication institutionnelle', m1c3:'Gestion des politiques publiques vénézuéliennes', m1c4:'État communal et nouvelle rationalité',
+    m2t:'Afrique — Systèmes, Réseaux et Mouvements', m2d:'Réseaux africains, tocoïsme et connexions Luanda-Caraïbes.',
+    m2c1:'Systèmes et réseaux politiques africains', m2c2:'Tocoïsme : mouvements transformateurs', m2c3:'Ilha de Luanda — origine latino-américaine', m2c4:'Formation en histoire locale',
+    m3t:'Géopolitique, Émancipation et Sud Global', m3d:'Crisocraties, externocraties et dialogues intercivilisationnels.',
+    m3c1:'Géopolitique de l\'émancipation', m3c2:'Crisocraties et externocraties', m3c3:'Dialogues intercivilisationnels', m3c4:'Formation Géopolitique de la Paix',
+    m4t:'Venezuela — Thèses et Perspectives', m4d:'Analyse critique multidimensionnelle du Venezuela.',
+    m4c1:'Venezuela : la nouvelle ère', m4c2:'Thèses pour sa compréhension', m4c3:'Perspectives régionales et internationales',
+    dipl_label:'Formation Spécialisée', dipl_title:'Formations de Haut Niveau', dipl_cta:"S'inscrire",
+    badge_active:'Actif 2025', badge_new:'Nouveau 2025', badge_soon:'Prochainement',
+    d1t:'Géopolitique de la Paix', d1d:"Analyse de l'ordre mondial, dynamiques du Sud et alternatives émancipatrices.",
+    d1f1:'Modules présentiel et hybride', d1f2:'Certificat institutionnel', d1f3:'Réseau académique Sud-Sud',
+    d2t:'Gestion Critique et Politiques Publiques', d2d:'Écosystèmes de gestion, transformation numérique et gouvernance publique.',
+    d2f1:'Méthodologie expérientielle', d2f2:'Cas Venezuela, Afrique et ALC', d2f3:'Tutorat personnalisé',
+    d3t:'Histoire Locale et Mémoire Collective', d3d:'Documentation, histoire orale et mémoire communautaire.',
+    d3f1:'Travail de terrain guidé', d3f2:'Publication des résultats', d3f3:'Matériaux en ES et PT',
+    btn_enroll:"S'inscrire", btn_wait:"Liste d'attente",
+    blog_label:'Réflexions et Analyses', blog_title:'Blog Académique', blog_sub:"S'abonner →", blog_read:"S'abonner pour lire →",
+    b1t:"Le Sud Global face à la reconfiguration de l'ordre international",
+    b1e:"L'ascension du Sud Global comme acteur collectif n'est pas linéaire. Les tensions entre souveraineté et dépendance structurelle définissent une agenda complexe qui exige ses propres cadres analytiques…",
+    b2t:'Venezuela et la nouvelle ère : résistance et transformation', b2d:'Thèses globales pour comprendre le processus vénézuélien.',
+    b3t:"Tocoïsme : la résistance africaine que le monde ignore", b3d:"Le mouvement social le plus méconnu d'Angola.",
+    b4t:"L'État communal comme rationalité alternative", b4d:'Communologie et les limites de la gestion traditionnelle.',
+    b5t:'Crisocraties et externocraties : catégories pour lire le Sud', b5d:'Proposition conceptuelle sur les systèmes de pouvoir.',
+    nl_label:'Bulletin Académique', nl_title:'Connaissances directement\ndans votre boîte mail',
+    nl_desc:'Analyses géopolitiques, avancées du Projet Mega et convocations. Sans algorithmes.',
+    nl_ph:'votre@email.com', nl_btn:"S'abonner", nl_note:'Sans spam · Désabonnez-vous quand vous voulez',
+    nl_tiers:"OPTIONS D'ABONNEMENT",
+    nl_t1n:'Bulletin gratuit', nl_t1d:'Analyses hebdomadaires et articles', nl_t1p:'Gratuit',
+    nl_t2n:'Abonnement Académique', nl_t2d:'Recherches et avancées du Mega', nl_t2p:'Renseignements',
+    nl_t3n:'Adhésion Institutionnelle', nl_t3d:'Accès total + réductions', nl_t3p:'Renseignements',
+    plat_label:'Écosystème Numérique Gratuit', plat_title:'Plateformes pour publier, grandir et générer des revenus',
+    p1:'Bulletin avec abonnés payants.', p2:'Vendez PDFs et livres numériques.', p3:'Dons volontaires sans frais.', p4:'Hébergement gratuit permanent.',
+    p5:'Podcast de géopolitique.', p6:'Publiez des recherches globalement.', p7:'Réseau académique international.', p8:'Conférences vidéo monétisables.',
+    ct_label:'Contact Direct', ct_title:'Parlons',
+    ct_desc:'Pour des demandes sur les formations, conférences, recherches collaboratives ou encadrement doctoral.',
+    ct_doc:'Enseignement', ct_res:'Recherche', ct_int:'International', ct_hon:'Chercheur honoraire',
+    ct_form_t:'Envoyer un message', ct_form_sub:'Je réponds en moins de 48 heures.',
+    f_name:'Nom', f_name_ph:'Votre nom complet', f_email:'Email', f_subject:'Sujet',
+    f_sel:'Sélectionnez un sujet', f_o1:'Formation — Géopolitique de la Paix', f_o2:'Formation — Gestion et PP',
+    f_o3:'Conférence / Exposé', f_o4:'Encadrement doctoral', f_o5:'Conseil',
+    f_o6:'Collaboration académique', f_o7:'Autre',
+    f_msg:'Message', f_msg_ph:'Comment puis-je vous aider?', f_send:'Envoyer →',
+  }
+};
+let currentLang = 'es';
+function t(key){ return (LANGS[currentLang] && LANGS[currentLang][key]) || LANGS.es[key] || key; }
+function setLang(lang){
+  currentLang = lang;
+  document.getElementById('html-root').lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase()===lang));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder = t(k);
+    else el.textContent = t(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  updateFCPresets();
+  updateSelectOptions();
+}
+function updateSelectOptions(){
+  document.querySelectorAll('select option[data-i18n]').forEach(o => { o.textContent = t(o.getAttribute('data-i18n')); });
+}
+
+/* ── NAV SCROLL ──────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+function openMobile(){ document.getElementById('mobileMenu').classList.add('open'); }
+function closeMobile(){ document.getElementById('mobileMenu').classList.remove('open'); }
+
+/* ── FADE IN ─────────────────────────────────────────── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.08});
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+/* ── TOAST ───────────────────────────────────────────── */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ══════════════════════════════════════════════════════
+   MAP — LEAFLET OBSERVATORIO
+══════════════════════════════════════════════════════ */
+let mapInstance, layers = {geo1:null,geo2:null,geo3:null}, layerStates = {geo1:true,geo2:true,geo3:true};
+
+const GEO_DATA = {
+  geo1: [ // GEOPOLITICAL — conflicts, alliances, sovereignty
+    {lat:50.4,lng:30.5,t:"🔴 Conflicto Ucrania-Rusia",d:"Guerra de alta intensidad con impactos geopolíticos globales. Reconfiguración de la arquitectura de seguridad europea y relaciones OTAN-Rusia.",c:"#D04030"},
+    {lat:31.8,lng:35.2,t:"🔴 Conflicto Gaza-Israel",d:"Escalada en Medio Oriente con impacto humanitario severo y repercusiones en el orden internacional.",c:"#D04030"},
+    {lat:15.5,lng:32.5,t:"🔴 Sudan: crisis política",d:"Conflicto armado interno con consecuencias regionales en el Sahel y el Cuerno de África.",c:"#D04030"},
+    {lat:23.7,lng:121.0,t:"⚡ Estrecho de Taiwán",d:"Tensión estratégica entre China y EE.UU. Disputa de soberanía con implicaciones para el orden bipolar emergente.",c:"#E8A030"},
+    {lat:-4.3,lng:15.3,t:"⚡ RDC — Inestabilidad Este",d:"Conflicto persistente en el este del Congo con actores regionales múltiples y recursos estratégicos en juego.",c:"#E8A030"},
+    {lat:6.8,lng:1.2,t:"🤝 CEDEAO: crisis de gobernanza",d:"Múltiples golpes de estado en el Sahel (Mali, Níger, Burkina Faso) desafían el orden regional africano.",c:"#E8C040"},
+    {lat:55.7,lng:37.6,t:"🔵 Federación Rusa",d:"Potencia euroasiática redefiniendo su proyección global. Pivote estratégico hacia el Sur Global y Asia.",c:"#4080C0"},
+    {lat:39.9,lng:116.4,t:"🔵 República Popular China",d:"Ascenso como potencia global. Nueva Ruta de la Seda, diplomacia de paz y desafío al orden unipolar.",c:"#4080C0"},
+    {lat:-15.8,lng:-47.9,t:"🔵 Brasil - BRICS+",d:"Liderazgo en América del Sur y Sur Global. Presidencia del BRICS y apuesta por la multipolaridad.",c:"#4080C0"},
+    {lat:28.6,lng:77.2,t:"🔵 India — Potencia emergente",d:"Crecimiento acelerado, autonomía estratégica y liderazgo del Sur Global en el G20.",c:"#4080C0"},
+    {lat:10.5,lng:-66.9,t:"🔵 Venezuela",d:"Proceso bolivariano: resistencia, integración ALBA y proyección hacia el Sur Global.",c:"#4080C0"},
+    {lat:-33.9,lng:18.4,t:"🔵 Sudáfrica — BRICS",d:"Ancla del poder africano. Diplomacia activa en la UA y referente continental.",c:"#4080C0"},
+    {lat:12.4,lng:-1.5,t:"⚡ Sahel — Nuevas soberanías",d:"Tres países del Sahel conforman la Alianza del Sahel (AES), rechazando presencia francesa y girando hacia Rusia.",c:"#E8A030"},
+    {lat:-34.6,lng:-58.4,t:"🤝 Argentina",d:"Miembro BRICS desde 2024. Tensión entre integración Sur Global y presiones del FMI.",c:"#E8C040"},
+  ],
+  geo2: [ // GEOECONOMIC / GEOFINANCIAL
+    {lat:22.3,lng:114.2,t:"💰 Hong Kong — Hub financiero",d:"Principal centro financiero Asia-Pacífico. Tensiones en su autonomía bajo el marco 'un país, dos sistemas'.",c:"#2A7A4A"},
+    {lat:1.4,lng:103.8,t:"💰 Singapur — Nodo comercial",d:"Centro logístico y financiero del Indo-Pacífico. Comercio anual > $800 mil millones.",c:"#2A7A4A"},
+    {lat:51.5,lng:-0.1,t:"💰 Londres — Capital financiero",d:"Mayor centro financiero global (ForEx). Creciente competencia post-Brexit con otros centros europeos.",c:"#2A7A4A"},
+    {lat:40.7,lng:-74.0,t:"💰 Nueva York — Wall Street",d:"Mayor concentración de capital financiero del mundo. Fed, NYSE, hegemonía del dólar.",c:"#2A7A4A"},
+    {lat:24.5,lng:54.4,t:"💰 Abu Dhabi — Fondo soberano",d:"ADIA: mayor fondo soberano del mundo (~$900 mil millones). Poder geofinanciero emiratí.",c:"#2A7A4A"},
+    {lat:30.0,lng:31.2,t:"🚢 Canal de Suez",d:"40% del comercio global Asia-Europa pasa por aquí. Ruta estratégica para el petróleo del Golfo.",c:"#40A060"},
+    {lat:9.1,lng:-79.7,t:"🚢 Canal de Panamá",d:"5% del comercio marítimo global. Nexo entre océanos Atlántico y Pacífico.",c:"#40A060"},
+    {lat:-23.5,lng:-46.6,t:"💹 São Paulo — Finanzas ALC",d:"Mayor centro financiero de América Latina. B3 es la mayor bolsa de valores de la región.",c:"#2A7A4A"},
+    {lat:55.7,lng:37.6,t:"🛢️ Rusia — Energía",d:"Proveedor crucial de gas y petróleo para Europa y Asia. Sanciones post-2022 reconfiguran flujos.",c:"#40A060"},
+    {lat:24.7,lng:46.7,t:"🛢️ Arabia Saudita — OPEP+",d:"Potencia energética global. Acuerdo OPEP+ con Rusia define precios mundiales del petróleo.",c:"#40A060"},
+    {lat:-8.8,lng:13.2,t:"🛢️ Angola — Petróleo",d:"Mayor productor de petróleo del África subsahariana. Miembro de la OPEP.",c:"#40A060"},
+    {lat:5.6,lng:-0.2,t:"🏭 Ghana — Oro y cacao",d:"Primer productor mundial de cacao. Reservas auríferas significativas. Economía en diversificación.",c:"#40A060"},
+    {lat:50.1,lng:8.7,t:"💹 Frankfurt — Eurozona",d:"Centro financiero del euro. BCE como actor determinante de la política monetaria europea.",c:"#2A7A4A"},
+    {lat:35.7,lng:139.7,t:"💹 Tokio — Yen y deuda",d:"Mayor acreedor mundial. Bolsa de Tokio entre las 3 mayores del mundo. Crisis de la deuda soberana.",c:"#2A7A4A"},
+    {lat:-26.2,lng:28.0,t:"🏭 Johannesburgo — Minería",d:"Centro de la industria minera africana. Oro, platino, diamantes. Principales ETF de materias primas.",c:"#40A060"},
+    {lat:55.8,lng:49.1,t:"💹 BRICS — Nueva arquitectura",d:"Sistema de pagos en moneda local, Nuevo Banco de Desarrollo y desafío a la hegemonía del dólar.",c:"#2A7A4A"},
+  ],
+  geo3: [ // GEOSTRATEGIC — chokepoints, resources, military
+    {lat:12.5,lng:43.5,t:"⚓ Bab-el-Mandeb",d:"Estrecho entre Yemen y Djibouti. Paso obligado para el petróleo del Golfo hacia Europa. Tensión Houthi.",c:"#1E6A9A"},
+    {lat:26.6,lng:56.3,t:"⚓ Estrecho de Ormuz",d:"20% del petróleo mundial pasa por aquí. Control estratégico entre Irán y países del Golfo.",c:"#1E6A9A"},
+    {lat:1.2,lng:103.8,t:"⚓ Estrecho de Malaca",d:"80% del petróleo para China y Japón. Punto de estrangulamiento más transitado del mundo.",c:"#1E6A9A"},
+    {lat:41.1,lng:29.1,t:"⚓ Bósforo-Dardanelos",d:"Única salida del Mar Negro. Control turco sobre el acceso ruso al Mediterráneo.",c:"#1E6A9A"},
+    {lat:68.0,lng:15.0,t:"🔷 Ártico",d:"Nuevas rutas marítimas, enormes reservas de hidrocarburos. Carrera estratégica Rusia-EEUU-China.",c:"#2A8AC0"},
+    {lat:-82.0,lng:0.0,t:"🔷 Antártida",d:"Tratado Antártico bajo presión. Reservas de agua dulce, minerales y posición geoestratégica.",c:"#2A8AC0"},
+    {lat:-1.9,lng:30.0,t:"🔷 Grandes Lagos Africanos",d:"Mayor reserva de agua dulce continental del mundo. Conflictos por recursos hídricos en aumento.",c:"#2A8AC0"},
+    {lat:36.8,lng:10.2,t:"🔷 Mediterráneo Sur",d:"Ruta de migración y energía. Gasoductos, cables submarinos y disputas territoriales.",c:"#2A8AC0"},
+    {lat:11.6,lng:43.1,t:"🏗️ Djibouti — Bases militares",d:"Bases militares de EE.UU., Francia, China, Japón e Italia. El nodo militar más concurrido de África.",c:"#1E6A9A"},
+    {lat:-8.0,lng:-35.0,t:"🏗️ Brasil — Presal",d:"Reservas de petróleo en aguas profundas. Segunda reserva de litio del mundo. Bioesfera amazónica.",c:"#1E6A9A"},
+    {lat:-22.9,lng:-43.2,t:"🛰️ BRICS Space",d:"Infraestructura espacial y satelital emergente del Sur Global como alternativa a GPS/Starlink.",c:"#2A8AC0"},
+    {lat:35.7,lng:51.4,t:"⚡ Irán — Eje de resistencia",d:"Potencia regional con programa nuclear. Articulación del eje de resistencia contra el orden unipolar.",c:"#1E6A9A"},
+    {lat:19.4,lng:-99.1,t:"🏗️ México — Nearshoring",d:"Relocalización de cadenas productivas. Corredor económico estratégico EE.UU.-México.",c:"#1E6A9A"},
+    {lat:-17.7,lng:31.0,t:"🔷 Zimbabwe — Litio",d:"Una de las mayores reservas de litio del mundo. Recurso estratégico para la transición energética.",c:"#2A8AC0"},
+    {lat:36.7,lng:3.1,t:"🔷 Argelia — Gas natural",d:"Principal proveedor de gas para Europa del Sur. Gasoductos trans-mediterráneos.",c:"#2A8AC0"},
+    {lat:-34.6,lng:-60.0,t:"🔷 Llanuras de la Plata",d:"Mayor acuífero guaraní. Producción agrícola estratégica. Soja, maíz y agua dulce.",c:"#2A8AC0"},
+  ]
+};
+
+function initMap(){
+  document.getElementById('map-loading').style.display = 'flex';
+  setTimeout(()=>{
+    mapInstance = L.map('obs-map',{
+      center:[20,10], zoom:2, minZoom:1, maxZoom:8,
+      zoomControl:true, attributionControl:false
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+      subdomains:'abcd', maxZoom:19
+    }).addTo(mapInstance);
+    mapInstance.zoomControl.setPosition('topright');
+    // Build layers
+    Object.keys(GEO_DATA).forEach(key => {
+      const group = L.layerGroup();
+      GEO_DATA[key].forEach(pt => {
+        const size = key==='geo3' ? 10 : (key==='geo1' ? 12 : 11);
+        const pulse = key==='geo1' ? `box-shadow:0 0 0 3px ${pt.c}30,0 0 0 6px ${pt.c}15` : '';
+        const icon = L.divIcon({
+          className:'',
+          html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${pt.c};border:2px solid ${pt.c}80;${pulse};transition:all .2s"></div>`,
+          iconSize:[size,size], iconAnchor:[size/2,size/2]
+        });
+        const marker = L.marker([pt.lat,pt.lng],{icon}).addTo(group);
+        marker.bindPopup(`<div class='pop-type' style='color:${pt.c}'>${key==='geo1'?'● GEOPOLÍTICO':key==='geo2'?'● GEOECONÓMICO':'● GEOESTRATÉGICO'}</div><div class='pop-title'>${pt.t}</div><div class='pop-desc'>${pt.d}</div>`,{maxWidth:280});
+      });
+      layers[key] = group;
+      group.addTo(mapInstance);
+    });
+    document.getElementById('map-loading').style.display = 'none';
+  },400);
+}
+
+function toggleLayer(key){
+  const btn = document.getElementById(`btn-${key}`);
+  if(layerStates[key]){
+    mapInstance.removeLayer(layers[key]);
+    layerStates[key] = false;
+    btn.className = 'layer-btn';
+    btn.querySelector('.dot').style.background = 'var(--dim)';
+  } else {
+    layers[key].addTo(mapInstance);
+    layerStates[key] = true;
+    const colors = {geo1:'var(--geo1)',geo2:'var(--geo2)',geo3:'var(--geo3)'};
+    btn.className = `layer-btn active-${key}`;
+    btn.querySelector('.dot').style.background = colors[key];
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   NEWS — Real-time via RSS2JSON
+══════════════════════════════════════════════════════ */
+const NEWS_FEEDS = {
+  world: [
+    {url:'https://feeds.bbci.co.uk/news/world/rss.xml', src:'BBC World'},
+    {url:'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', src:'NY Times World'},
+  ],
+  americas: [
+    {url:'https://feeds.bbci.co.uk/news/world/latin_america/rss.xml', src:'BBC Américas'},
+    {url:'https://www.aljazeera.com/xml/rss/all.xml', src:'Al Jazeera'},
+  ],
+  europe: [
+    {url:'https://feeds.bbci.co.uk/news/world/europe/rss.xml', src:'BBC Europa'},
+    {url:'https://www.euronews.com/rss', src:'Euronews'},
+  ],
+  africa: [
+    {url:'https://feeds.bbci.co.uk/news/world/africa/rss.xml', src:'BBC África'},
+    {url:'https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf', src:'AllAfrica'},
+  ],
+  asia: [
+    {url:'https://feeds.bbci.co.uk/news/world/asia/rss.xml', src:'BBC Asia'},
+    {url:'https://www.scmp.com/rss/91/feed', src:'South China Morning Post'},
+  ],
+  mideast: [
+    {url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml', src:'BBC Medio Oriente'},
+    {url:'https://www.aljazeera.com/xml/rss/all.xml', src:'Al Jazeera'},
+  ]
+};
+
+const FALLBACK_NEWS = {
+  world:[
+    {title:'Reunión del G20 debate reforma del sistema financiero internacional',excerpt:'Los líderes del Sur Global presentan propuestas para reducir la dependencia del dólar y reformar las instituciones de Bretton Woods.',source:'Reuters',date:'Hace 2 horas'},
+    {title:'BRICS+ acelera sistema de pagos en monedas locales',excerpt:'El Nuevo Banco de Desarrollo anuncia avances en la plataforma de intercambio sin dólar entre sus miembros.',source:'Bloomberg',date:'Hace 4 horas'},
+    {title:'ONU llama a solución negociada en múltiples conflictos activos',excerpt:'El Secretario General advierte sobre el riesgo de fragmentación del orden multilateral ante el auge del unilateralismo.',source:'UN News',date:'Hace 6 horas'},
+  ],
+  americas:[
+    {title:'Venezuela avanza en acuerdos energéticos con el Caribe',excerpt:'Petrocaribe reorienta su política de suministro ante el nuevo contexto geopolítico hemisférico.',source:'TeleSur',date:'Hace 3 horas'},
+    {title:'Brasil lidera agenda climática del Sur Global',excerpt:'Lula presenta en la ONU propuesta de financiamiento climático favorable a países en desarrollo.',source:'Agência Brasil',date:'Hace 5 horas'},
+    {title:'CELAC refuerza mecanismos de integración regional',excerpt:'Los estados miembros acuerdan una agenda común frente a las presiones externas.',source:'Prensa Latina',date:'Hace 7 horas'},
+  ],
+  europe:[
+    {title:'Unión Europea debate ampliación ante crisis geopolítica',excerpt:'El proceso de adhesión de nuevos miembros avanza en medio de tensiones con Rusia y debates sobre capacidad institucional.',source:'EUObserver',date:'Hace 1 hora'},
+    {title:'BCE analiza impacto de sanciones en economía europea',excerpt:'Las sanciones a Rusia tienen efectos de rebote significativos sobre la competitividad industrial europea.',source:'FT',date:'Hace 4 horas'},
+    {title:'Migración mediterránea: debate sobre política común europea',excerpt:'Los estados del sur de Europa presionan por una distribución equitativa de las responsabilidades migratorias.',source:'Euronews',date:'Hace 6 horas'},
+  ],
+  africa:[
+    {title:'Sahel: la Alianza del Sahel consolida su posición soberana',excerpt:'Mali, Níger y Burkina Faso avanzan en la construcción de una arquitectura de seguridad autónoma frente a la presencia occidental.',source:'Africa Report',date:'Hace 2 horas'},
+    {title:'Angola impulsa corredor de desarrollo en África Austral',excerpt:'Luanda promueve el corredor Lobito como alternativa de conectividad con capitales chinos y occidentales.',source:'AllAfrica',date:'Hace 4 horas'},
+    {title:'Unión Africana y reforma del Consejo de Seguridad',excerpt:'El continente africano presiona por representación permanente en el CSNU bajo el consenso de Ezulwini.',source:'AU Monitor',date:'Hace 8 horas'},
+  ],
+  asia:[
+    {title:'China presenta nueva iniciativa de seguridad global en Asia',excerpt:'Beijing propone un marco de seguridad colectiva alternativo a las alianzas militares lideradas por EE.UU.',source:'Xinhua',date:'Hace 1 hora'},
+    {title:'India-China: tensiones fronterizas y diálogo comercial',excerpt:'A pesar de las disputas en el Himalaya, el comercio bilateral India-China supera los $120 mil millones.',source:'The Hindu',date:'Hace 3 horas'},
+    {title:'ASEAN debate respuesta ante presiones en el Mar del Sur de China',excerpt:'Los miembros de la ASEAN buscan equilibrio entre vínculos con China y acuerdos de seguridad con EE.UU.',source:'Bangkok Post',date:'Hace 6 horas'},
+  ],
+  mideast:[
+    {title:'Irán y Arabia Saudita consolidan acuerdo de reconciliación',excerpt:'El acuerdo mediado por China en 2023 sigue produciendo frutos diplomáticos con intercambio de embajadores.',source:'Al Jazeera',date:'Hace 2 horas'},
+    {title:'Turquía amplía su política de autonomía estratégica',excerpt:'Ankara actúa como mediador entre Occidente y Rusia manteniendo su membresía en la OTAN.',source:'TRT World',date:'Hace 5 horas'},
+    {title:'Houthis y el control del Mar Rojo: impacto en el comercio mundial',excerpt:'Los ataques en el Mar Rojo han desviado el 25% del comercio global hacia la ruta del Cabo de Buena Esperanza.',source:'Reuters',date:'Hace 8 horas'},
+  ]
+};
+let currentContinent = 'world';
+
+function loadNews(continent, icon){
+  currentContinent = continent;
+  document.querySelectorAll('.news-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-continent')===continent));
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = `<div class="news-loading"><div class="spinner"></div><span>${t('news_loading')}</span></div>`;
+  const feeds = NEWS_FEEDS[continent] || NEWS_FEEDS.world;
+  const rssUrl = encodeURIComponent(feeds[0].url);
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=6`;
+  fetch(apiUrl)
+    .then(r => r.json())
+    .then(data => {
+      if(data.status === 'ok' && data.items && data.items.length){
+        renderNews(data.items, feeds[0].src);
+      } else { renderFallback(continent); }
+    })
+    .catch(() => renderFallback(continent));
+}
+
+function renderNews(items, src){
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = '';
+  items.slice(0,6).forEach(item => {
+    const title = item.title || '';
+    const excerpt = (item.description || '').replace(/<[^>]*>/g,'').slice(0,160) + '…';
+    const date = item.pubDate ? new Date(item.pubDate).toLocaleString(currentLang) : '';
+    const card = document.createElement('div');
+    card.className = 'news-card';
+    card.onclick = () => { if(item.link) window.open(item.link,'_blank'); };
+    card.innerHTML = `
+      <div class="news-source"><div class="news-live-dot"></div>${src}</div>
+      <div class="news-title">${title}</div>
+      <div class="news-excerpt">${excerpt}</div>
+      <div class="news-meta">${date}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderFallback(continent){
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = '';
+  const items = FALLBACK_NEWS[continent] || FALLBACK_NEWS.world;
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'news-card';
+    card.innerHTML = `
+      <div class="news-source"><div class="news-live-dot" style="background:var(--gold)"></div>Análisis Observatorio</div>
+      <div class="news-title">${item.title}</div>
+      <div class="news-excerpt">${item.excerpt}</div>
+      <div class="news-meta">${item.date}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   FACT-CHECKER — Anthropic API
+══════════════════════════════════════════════════════ */
+const FC_PRESETS = {
+  es:[
+    'El Sur Global representa más del 50% del PIB mundial en PPA',
+    'China tiene bases militares en más de 5 países africanos',
+    'El BRICS tiene más miembros que el G7',
+    'Venezuela posee las mayores reservas de petróleo del mundo',
+    'El Canal de Suez maneja el 40% del comercio global',
+  ],
+  en:[
+    'The Global South represents over 50% of world GDP by PPP',
+    'China has military bases in more than 5 African countries',
+    'BRICS has more members than the G7',
+    'Venezuela holds the world\'s largest oil reserves',
+    'The Suez Canal handles 40% of global trade',
+  ],
+  pt:[
+    'O Sul Global representa mais de 50% do PIB mundial em PPA',
+    'A China tem bases militares em mais de 5 países africanos',
+    'O BRICS tem mais membros do que o G7',
+    'A Venezuela possui as maiores reservas de petróleo do mundo',
+    'O Canal de Suez lida com 40% do comércio global',
+  ],
+  fr:[
+    'Le Sud Global représente plus de 50% du PIB mondial en PPA',
+    'La Chine a des bases militaires dans plus de 5 pays africains',
+    'Les BRICS ont plus de membres que le G7',
+    'Le Venezuela possède les plus grandes réserves de pétrole au monde',
+    'Le Canal de Suez gère 40% du commerce mondial',
+  ]
+};
+
+function updateFCPresets(){
+  const wrap = document.getElementById('fcPresets');
+  wrap.innerHTML = '';
+  (FC_PRESETS[currentLang] || FC_PRESETS.es).forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'fc-preset';
+    btn.textContent = p.length > 55 ? p.slice(0,55)+'…' : p;
+    btn.title = p;
+    btn.onclick = () => { document.getElementById('fcClaim').value = p; };
+    wrap.appendChild(btn);
+  });
+}
+
+const FC_SYSTEM = `Eres un fact-checker geopolítico académico especializado en política internacional, historia del Sur Global, geopolítica crítica, economía política internacional y ciencias gerenciales. Trabajas desde la perspectiva del Dr. Tomás Camacho Rincones, investigador venezolano con enfoque en el Sur Global, África y América Latina.
+
+Al recibir una afirmación, debes:
+1. Determinar su nivel de veracidad: VERDADERO, MAYORMENTE VERDADERO, PARCIALMENTE VERDADERO, MAYORMENTE FALSO, FALSO, o CONTEXTO NECESARIO
+2. Asignar un score del 0 al 100 (100 = completamente verdadero)
+3. Proporcionar análisis contextual crítico (150-250 palabras)
+4. Señalar fuentes académicas o institucionales relevantes
+
+Responde SOLO con este JSON (sin texto extra, sin markdown):
+{
+  "verdict": "VERDADERO|MAYORMENTE VERDADERO|PARCIALMENTE VERDADERO|MAYORMENTE FALSO|FALSO|CONTEXTO NECESARIO",
+  "score": 0-100,
+  "icon": "✅|⚠️|🔶|❌|❓",
+  "analysis": "análisis crítico contextualizado...",
+  "sources": ["Fuente 1", "Fuente 2", "Fuente 3"]
+}`;
+
+async function runFactCheck(){
+  const apiKey = document.getElementById('fcApiKey').value.trim();
+  const claim = document.getElementById('fcClaim').value.trim();
+  if(!apiKey){ showToast('⚠ Ingrese su clave API de Anthropic'); return; }
+  if(!claim){ showToast('⚠ Ingrese una afirmación'); return; }
+  const btn = document.getElementById('fcBtn');
+  const resultDiv = document.getElementById('fcResult');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;margin-right:6px"></div>Verificando…`;
+  resultDiv.className = 'fc-result show';
+  resultDiv.innerHTML = `<div class="fc-thinking"><div class="spinner"></div><span data-i18n="fc_run">Analizando con IA…</span></div>`;
+  const context = document.getElementById('fcContext').value.trim();
+  const userMsg = context ? `Afirmación: "${claim}"\n\nContexto: ${context}` : `Afirmación: "${claim}"`;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: FC_SYSTEM,
+        messages:[{role:'user', content: userMsg}]
+      })
+    });
+    if(!resp.ok){ const e = await resp.json(); throw new Error(e.error?.message||resp.status); }
+    const data = await resp.json();
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const result = JSON.parse(raw);
+    renderFCResult(result);
+  } catch(err){
+    resultDiv.innerHTML = `<div style="color:#E07060;font-family:var(--font-m);font-size:11px;padding:8px"><strong>Error:</strong> ${err.message}<br/><span style="color:var(--dim)">Verifique su clave API o intente de nuevo.</span></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `🔍 <span data-i18n="fc_run">${t('fc_run')}</span>`;
+  }
+}
+
+function renderFCResult(r){
+  const score = r.score || 0;
+  const colors = {
+    'VERDADERO':'#4ADE80','MAYORMENTE VERDADERO':'#86EFAC',
+    'PARCIALMENTE VERDADERO':'#FCD34D','CONTEXTO NECESARIO':'#93C5FD',
+    'MAYORMENTE FALSO':'#FCA5A5','FALSO':'#F87171',
+    'TRUE':'#4ADE80','MOSTLY TRUE':'#86EFAC','PARTIALLY TRUE':'#FCD34D',
+    'CONTEXT NEEDED':'#93C5FD','MOSTLY FALSE':'#FCA5A5','FALSE':'#F87171',
+  };
+  const col = colors[r.verdict] || '#A09070';
+  const sources = (r.sources||[]).map(s=>`<span class="fc-source-tag">${s}</span>`).join('');
+  document.getElementById('fcResult').innerHTML = `
+    <div class="fc-verdict">
+      <div class="fc-verdict-icon">${r.icon||'❓'}</div>
+      <div>
+        <div class="fc-verdict-label" style="color:${col}">${r.verdict}</div>
+      </div>
+      <div class="fc-verdict-score" style="color:${col}">${score}<span style="font-size:14px;opacity:.6">/100</span></div>
+    </div>
+    <div style="background:rgba(255,255,255,.03);border-radius:4px;height:6px;margin-bottom:14px;overflow:hidden">
+      <div style="width:${score}%;height:100%;background:${col};transition:width 1s ease;border-radius:4px"></div>
+    </div>
+    <div class="fc-analysis">${r.analysis}</div>
+    ${sources ? `<div class="fc-sources"><div class="fc-sources-title">${currentLang==='en'?'SOURCES':'FUENTES RECOMENDADAS'}</div>${sources}</div>` : ''}
+  `;
+}
+
+function clearFC(){
+  document.getElementById('fcClaim').value = '';
+  document.getElementById('fcContext').value = '';
+  const r = document.getElementById('fcResult');
+  r.className = 'fc-result';
+  r.innerHTML = '';
+}
+
+/* ── FORMS ──────────────────────────────────────────── */
+function enviarContacto(){
+  const name = document.getElementById('ctName').value;
+  const email = document.getElementById('ctEmail').value;
+  const subject = document.getElementById('ctSubject').value;
+  const msg = document.getElementById('ctMsg').value;
+  if(!name||!email){ showToast('⚠ Complete nombre y correo'); return; }
+  const sub = encodeURIComponent(subject||'Contacto desde sitio web');
+  const body = encodeURIComponent(`De: ${name} (${email})\nAsunto: ${subject}\n\n${msg}`);
+  window.location.href = `mailto:polpubpp@gmail.com?subject=${sub}&body=${body}`;
+  showToast('✓ Abriendo cliente de correo…');
+}
+function suscribir(){
+  const email = document.getElementById('nlEmail').value;
+  if(!email||!email.includes('@')){ showToast('⚠ Correo inválido'); return; }
+  showToast('✓ ¡Suscrito! Revise su correo.');
+  document.getElementById('nlEmail').value = '';
+}
+
+/* ── SMOOTH SCROLL ──────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const el = document.querySelector(a.getAttribute('href'));
+    if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+
+/* ══════════════════════════════════════════════════════
+   CENTRO DE CONOCIMIENTO — DATA & LOGIC
+══════════════════════════════════════════════════════ */
+function openLink(url){ window.open(url,'_blank','noopener'); }
+
+const KNOW_DATA = {
+  gerencia: [
+    { icon:'📊', name:'Harvard Business Review', org:'Harvard University', type:'journal', typeLabel:'Revista', alert:'hot', alertLabel:'IMPACTO GLOBAL',
+      desc:'La revista de gestión empresarial más influyente del mundo. Artículos sobre liderazgo, estrategia, innovación organizacional y transformación digital con foco en la práctica directiva.',
+      tags:['Liderazgo','Estrategia','Innovación','Org. digital'], impact:'IF: 6.2 · 500k+ suscriptores', url:'https://hbr.org' },
+    { icon:'🔬', name:'MIT Sloan Management Review', org:'MIT Sloan School', type:'journal', typeLabel:'Revista',
+      desc:'Investigación de vanguardia en gestión, tecnología e innovación. Publica estudios sobre IA, transformación digital y liderazgo adaptativo en entornos complejos.',
+      tags:['IA en gestión','Innovación','Liderazgo','Digital'], impact:'IF: 4.8 · MIT Sloan', url:'https://sloanreview.mit.edu' },
+    { icon:'🏢', name:'McKinsey Global Institute', org:'McKinsey & Company', type:'think', typeLabel:'Think Tank', alert:'new', alertLabel:'NUEVO INFORME',
+      desc:'Producción de análisis estratégicos sobre economía global, productividad, tecnología y modelos de negocio. Referente mundial en consultoría de gestión pública y privada.',
+      tags:['Economía global','Productividad','Tecnología','Sectores'], impact:'Top 5 consultoría global', url:'https://mckinsey.com/mgi' },
+    { icon:'🎓', name:'Academy of Management Review', org:'Academy of Management', type:'journal', typeLabel:'Revista',
+      desc:'Revista líder en teoría organizacional y management. Publica investigaciones sobre comportamiento organizacional, estrategia y gerencia del conocimiento.',
+      tags:['Org. teoría','Comportamiento','Estrategia','Gestión conocimiento'], impact:'IF: 9.4 · A+ ranking', url:'https://aom.org/amr' },
+    { icon:'🌎', name:'CLAD', org:'Centro Latinoamericano de Administración para el Desarrollo', type:'network', typeLabel:'Red académica', alert:'new', alertLabel:'ALC',
+      desc:'Red iberoamericana de excelencia para la reforma del Estado y la modernización de la Administración Pública. Publicaciones en administración pública y gerencia gubernamental.',
+      tags:['Admin. pública','ALC','Reforma estado','Gobernanza'], impact:'22 países · Ref. iberoamericano', url:'https://clad.org' },
+    { icon:'📈', name:'Administrative Science Quarterly', org:'Cornell University', type:'journal', typeLabel:'Revista',
+      desc:'Una de las revistas más antiguas y respetadas en ciencias administrativas. Estudios empíricos y teóricos sobre organizaciones, poder y estructuras institucionales.',
+      tags:['Organizaciones','Poder','Instituciones','Teoría'], impact:'IF: 8.7 · Fundada 1956', url:'https://journals.sagepub.com/home/asq' },
+    { icon:'💡', name:'Deloitte Insights', org:'Deloitte', type:'report', typeLabel:'Informes', alert:'recent', alertLabel:'2025',
+      desc:'Informes sobre transformación digital, tendencias sectoriales, gestión del talento y análisis de ecosistemas empresariales globales con perspectiva comparada.',
+      tags:['Transform. digital','Talento','Sectores','Tecnología'], impact:'Global · Actualización mensual', url:'https://deloitte.com/insights' },
+    { icon:'🏛️', name:'OECD Governance', org:'OCDE', type:'research', typeLabel:'Centro Invest.',
+      desc:'División de Gobernanza Pública de la OCDE. Produce indicadores, marcos analíticos y recomendaciones sobre administración pública, anticorrupción y capacidad estatal.',
+      tags:['Gobernanza','Admin. pública','Anticorrupción','Indicadores'], impact:'OCDE · 38 países miembros', url:'https://oecd.org/governance' },
+    { icon:'📚', name:'Journal of Management Studies', org:'Wiley-Blackwell / ABS', type:'journal', typeLabel:'Revista',
+      desc:'Revista de gestión estratégica y teoría organizacional con énfasis en metodologías innovadoras y análisis cross-cultural de sistemas de gestión.',
+      tags:['Gestión estratégica','Cross-cultural','Innovación'], impact:'IF: 7.6 · ABS 4* Rating', url:'https://onlinelibrary.wiley.com/journal/14676486' },
+    { icon:'🔄', name:'IESE Business School', org:'Universidad de Navarra', type:'research', typeLabel:'Centro Invest.',
+      desc:'Centro de investigación en gerencia con enfoque humanista y global. Casos de empresa, humanidades en los negocios e impacto de la gerencia en la sociedad.',
+      tags:['Casos empresa','Humanidades','Ética gerencial'], impact:'Top 10 escuelas negocio Europa', url:'https://iese.edu/research' },
+    { icon:'🌐', name:'World Management Survey', org:'LSE / HBS / Stanford', type:'research', typeLabel:'Investigación',
+      desc:'Estudio comparado sobre prácticas de gestión en 35 países. Analiza productividad, gestión del talento y diferencias gerenciales entre países del Norte y Sur.',
+      tags:['Gestión comparada','Productividad','35 países'], impact:'LSE + HBS + Stanford', url:'https://worldmanagementsurvey.org' },
+    { icon:'📊', name:'Strategy+Business', org:'PwC / Booz Allen', type:'journal', typeLabel:'Revista',
+      desc:'Análisis de estrategia empresarial, innovación y liderazgo desde una perspectiva crítica. Cubre transformación organizacional y modelos de negocio emergentes.',
+      tags:['Estrategia','Liderazgo','Modelos negocio'], impact:'PwC · Distribución global', url:'https://strategy-business.com' },
+    { icon:'🧩', name:'Public Administration Review', org:'ASPA / Wiley', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'REFERENTE',
+      desc:'Referente mundial en administración pública y gestión gubernamental. Publica investigaciones sobre políticas públicas, burocracia, participación y gobernanza democrática.',
+      tags:['Admin. pública','Gobernanza','Burocracia','Democracia'], impact:'IF: 5.3 · Desde 1940', url:'https://onlinelibrary.wiley.com/journal/15406210' },
+    { icon:'🏆', name:'California Management Review', org:'UC Berkeley', type:'journal', typeLabel:'Revista',
+      desc:'Publica investigación aplicada sobre gestión estratégica, innovación, sostenibilidad y emprendimiento con énfasis en el impacto social de las organizaciones.',
+      tags:['Innovación','Sostenibilidad','Emprendimiento','Impacto social'], impact:'IF: 6.1 · UC Berkeley', url:'https://cmr.berkeley.edu' },
+  ],
+  geopolitica: [
+    { icon:'🌏', name:'Foreign Affairs', org:'Council on Foreign Relations', type:'journal', typeLabel:'Revista', alert:'hot', alertLabel:'IMPACTO GLOBAL',
+      desc:'La revista de política exterior más influyente del mundo. Define la agenda del debate estratégico global con análisis de potencias, conflictos y orden internacional.',
+      tags:['Política exterior','Orden mundial','Estrategia','Potencias'], impact:'IF: 4.9 · Desde 1922', url:'https://foreignaffairs.com' },
+    { icon:'🔭', name:'Foreign Policy', org:'FP Group', type:'journal', typeLabel:'Revista', alert:'new', alertLabel:'ANÁLISIS 2025',
+      desc:'Análisis crítico de las relaciones internacionales contemporáneas. Cubre geopolítica emergente, defensa, diplomacia y el ascenso del Sur Global con perspectiva independiente.',
+      tags:['RI contemporáneas','Defensa','Diplomacia','Sur Global'], impact:'Top 3 publicaciones RI', url:'https://foreignpolicy.com' },
+    { icon:'🔬', name:'RAND Corporation', org:'RAND', type:'think', typeLabel:'Think Tank',
+      desc:'El think tank de defensa y seguridad más citado del mundo. Produce análisis sobre conflictos, disuasión nuclear, inteligencia y estrategia geopolítica con metodología rigurosa.',
+      tags:['Seguridad','Defensa','Nuclear','Conflictos'], impact:'$350M presupuesto · Top think tank', url:'https://rand.org' },
+    { icon:'🏛️', name:'Chatham House', org:'Royal Institute of International Affairs', type:'think', typeLabel:'Think Tank', alert:'recent', alertLabel:'REFERENTE UK',
+      desc:'Instituto británico líder en geopolítica y relaciones internacionales. Análisis sobre Europa, el Sur Global, gobernanza y orden liberal internacional.',
+      tags:['Relaciones intern.','Europa','Sur Global','Gobernanza'], impact:'Top 5 think tanks mundo', url:'https://chathamhouse.org' },
+    { icon:'🌍', name:'Carnegie Endowment', org:'Carnegie Endowment for Int\'l Peace', type:'think', typeLabel:'Think Tank',
+      desc:'Think tank centenario con enfoque en no proliferación, democracia, tecnología y política exterior. Sede en Washington con oficinas en Moscú, Beirut, India y Europa.',
+      tags:['No proliferación','Democracia','Tecnología','Multipolar'], impact:'100+ años · Presencia global', url:'https://carnegieendowment.org' },
+    { icon:'📡', name:'SIPRI', org:'Stockholm International Peace Research Institute', type:'research', typeLabel:'Centro Invest.', alert:'new', alertLabel:'ANUARIO 2025',
+      desc:'Fuente de referencia mundial en armamentos, gastos militares y control de armas. El Anuario SIPRI es la biblia de los estudios de seguridad internacional.',
+      tags:['Armamentos','Gasto militar','Paz','Control armas'], impact:'Desde 1966 · Anuario global', url:'https://sipri.org' },
+    { icon:'🔷', name:'Brookings Institution', org:'Brookings', type:'think', typeLabel:'Think Tank',
+      desc:'Think tank de referencia en política exterior, gobernanza global y política pública norteamericana. Análisis de alta influencia en la configuración de agendas internacionales.',
+      tags:['Política exterior','Gobernanza','Democracia'], impact:'#1 think tank EE.UU. · Global', url:'https://brookings.edu/foreign-policy' },
+    { icon:'🌐', name:'CSIS', org:'Center for Strategic and International Studies', type:'think', typeLabel:'Think Tank',
+      desc:'Centro estratégico de referencia en política exterior, defensa y energía. Fuerte cobertura de Asia-Pacífico, Medio Oriente y el Indo-Pacífico emergente.',
+      tags:['Defensa','Indo-Pacífico','Energía','Asia'], impact:'Washington D.C. · Top 5 global', url:'https://csis.org' },
+    { icon:'🔴', name:'Al Jazeera Centre for Studies', org:'Al Jazeera Media Network', type:'research', typeLabel:'Centro Invest.', alert:'recent', alertLabel:'SUR GLOBAL',
+      desc:'Centro de investigación con perspectiva del Sur Global. Análisis sobre el mundo árabe, África, geopolítica islámica y la reconfiguración del orden pos-occidental.',
+      tags:['Sur Global','Mundo árabe','África','Pos-occidental'], impact:'Qatar · Perspectiva Global Sur', url:'https://studies.aljazeera.net' },
+    { icon:'🇺🇳', name:'International Crisis Group', org:'ICG', type:'think', typeLabel:'Think Tank',
+      desc:'Organización dedicada a prevenir y resolver conflictos armados. Sus alertas y análisis de conflictos activos son referencia para gobiernos y organismos multilaterales.',
+      tags:['Conflictos','Prevención guerra','Mediación','ONU'], impact:'Ref. para ONU y UE', url:'https://crisisgroup.org' },
+    { icon:'📰', name:'The Diplomat', org:'The Diplomat Media', type:'journal', typeLabel:'Revista',
+      desc:'Principal publicación de análisis geopolítico del Indo-Pacífico. Cobertura de Asia, China, Japón, Corea y la reconfiguración del orden asiático con profundidad analítica.',
+      tags:['Indo-Pacífico','China','Asia','Seguridad'], impact:'Ref. Asia-Pacífico · Digital', url:'https://thediplomat.com' },
+    { icon:'🌿', name:'Geopolitical Intelligence Services', org:'GIS Reports', type:'report', typeLabel:'Reportes', alert:'live', alertLabel:'EN VIVO',
+      desc:'Informes geopolíticos de alta calidad con análisis de riesgos, escenarios y tendencias. Cobertura global con atención especial al Sur Global y potencias emergentes.',
+      tags:['Riesgos','Escenarios','Tendencias','Sur Global'], impact:'Suscripción premium · Global', url:'https://gisreportsonline.com' },
+    { icon:'🔭', name:'Council on Foreign Relations', org:'CFR', type:'think', typeLabel:'Think Tank',
+      desc:'El think tank más influyente en política exterior de EE.UU. Tracker de conflictos en tiempo real, informes sobre seguridad global y plataforma de debate estratégico.',
+      tags:['Política exterior EE.UU.','Tracker conflictos','Seguridad'], impact:'New York · Influencia máxima', url:'https://cfr.org' },
+    { icon:'📜', name:'Survival — Global Politics & Strategy', org:'IISS — International Institute for Strategic Studies', type:'journal', typeLabel:'Revista',
+      desc:'Revista académica de alto impacto en estrategia y seguridad internacional. Publica artículos sobre disuasión, tecnología militar, insurgencia y nuevas amenazas.',
+      tags:['Estrategia','Seguridad','Disuasión','Tecnología militar'], impact:'IF: 2.8 · IISS Londres', url:'https://iiss.org/publications/survival' },
+  ],
+  geoeconomia: [
+    { icon:'💹', name:'Peterson Institute', org:'PIIE — Peterson Institute for International Economics', type:'think', typeLabel:'Think Tank', alert:'hot', alertLabel:'TOP REFERENTE',
+      desc:'Think tank líder mundial en economía internacional, comercio, política monetaria y análisis de la globalización. Sus investigaciones influyen directamente en el FMI y el G20.',
+      tags:['Comercio','Globalización','Política monetaria','G20'], impact:'Washington D.C. · IF máximo', url:'https://piie.com' },
+    { icon:'🌎', name:'CEPAL / ECLAC', org:'Comisión Económica para América Latina y el Caribe', type:'research', typeLabel:'Organismo', alert:'new', alertLabel:'ALC 2025',
+      desc:'Organismo de la ONU para el desarrollo de ALC. Perspectiva Económica de AL, informes de integración y análisis de desigualdad, comercio e industrialización.',
+      tags:['ALC','Desarrollo','Comercio','Desigualdad'], impact:'ONU · Ref. región', url:'https://cepal.org' },
+    { icon:'🌐', name:'FMI — Research Dept.', org:'International Monetary Fund', type:'research', typeLabel:'Organismo', alert:'recent', alertLabel:'WEO 2025',
+      desc:'Departamento de Investigación del FMI. World Economic Outlook, Fiscal Monitor y Global Financial Stability Report son las publicaciones económicas más citadas del mundo.',
+      tags:['WEO','Política fiscal','Estabilidad financ.','Global'], impact:'189 países miembros · OI', url:'https://imf.org/en/research' },
+    { icon:'🏦', name:'World Bank Research', org:'Banco Mundial', type:'research', typeLabel:'Organismo',
+      desc:'Producción masiva de investigación sobre desarrollo económico, pobreza, comercio, infraestructura y políticas de desarrollo para países de renta media y baja.',
+      tags:['Desarrollo','Pobreza','Comercio','Infraestructura'], impact:'Banco Mundial · 189 países', url:'https://worldbank.org/en/research' },
+    { icon:'🚢', name:'UNCTAD', org:'Conferencia de la ONU sobre Comercio y Desarrollo', type:'research', typeLabel:'Organismo', alert:'new', alertLabel:'SUR GLOBAL',
+      desc:'Organismo de la ONU que defiende los intereses del Sur Global en el comercio internacional. Trade and Development Report es referente para países emergentes.',
+      tags:['Sur Global','Comercio','Inversión','Desarrollo'], impact:'ONU · 195 países · Ginebra', url:'https://unctad.org' },
+    { icon:'🔵', name:'Bruegel', org:'Bruegel Institute — Brussels', type:'think', typeLabel:'Think Tank',
+      desc:'Think tank europeo de economía internacional de primer nivel. Análisis sobre la eurozona, política industrial europea, geoeconomía y el rol de Europa en la competencia global.',
+      tags:['Eurozona','Política industrial','Competencia global'], impact:'Bruselas · Top Europa', url:'https://bruegel.org' },
+    { icon:'🌍', name:'ODI — Overseas Development Institute', org:'ODI Global', type:'research', typeLabel:'Centro Invest.',
+      desc:'Think tank independiente sobre desarrollo global. Estudia las interacciones entre economía, geopolítica y desarrollo, con énfasis en África y Asia meridional.',
+      tags:['Desarrollo global','África','Asia meridional','Pobreza'], impact:'Londres · IF 8.2', url:'https://odi.org' },
+    { icon:'🏛️', name:'BID — Investigación', org:'Banco Interamericano de Desarrollo', type:'research', typeLabel:'Organismo',
+      desc:'Centro de investigación económica del BID para ALC. Publica estudios sobre integración regional, productividad, mercados laborales y economía del desarrollo latinoamericano.',
+      tags:['ALC','Integración regional','Productividad','Mercados'], impact:'BID · ALC · Ref. regional', url:'https://iadb.org/research' },
+    { icon:'🌏', name:'WEF — World Economic Forum', org:'Foro Económico Mundial', type:'network', typeLabel:'Red global', alert:'recent', alertLabel:'DAVOS 2025',
+      desc:'Plataforma global que reúne líderes políticos, empresariales y académicos. Sus informes sobre competitividad global, riesgos y tendencias son referencias mundiales.',
+      tags:['Competitividad','Riesgos globales','Davos','Tendencias'], impact:'Davos · Red global líderes', url:'https://weforum.org' },
+    { icon:'🔬', name:'NBER', org:'National Bureau of Economic Research', type:'research', typeLabel:'Centro Invest.',
+      desc:'La mayor fuente de investigación económica académica del mundo. Working papers sobre macroeconomía internacional, comercio, finanzas y economía del desarrollo.',
+      tags:['Macro internacional','Comercio','Finanzas','Papers'], impact:'Cambridge MA · Nobel en economía', url:'https://nber.org' },
+    { icon:'📊', name:'Project Syndicate', org:'Project Syndicate', type:'journal', typeLabel:'Revista', alert:'live', alertLabel:'DIARIO',
+      desc:'Plataforma de comentarios económicos y de política de los economistas y analistas más influyentes del mundo. Publica artículos de premio Nobel y exlíderes mundiales.',
+      tags:['Economía mundial','Análisis','Nobel','Líderes'], impact:'159 países · Digital', url:'https://project-syndicate.org' },
+    { icon:'🌐', name:'SELA — Sistema Económico Latinoamericano', org:'SELA', type:'network', typeLabel:'Red académica',
+      desc:'Sistema de cooperación económica y social de ALC. Análisis sobre integración regional, cooperación Sur-Sur y economía política latinoamericana.',
+      tags:['ALC','Cooperación Sur-Sur','Integración','Economía política'], impact:'Caracas · 26 países', url:'https://sela.org' },
+  ],
+  geofinanzas: [
+    { icon:'🏦', name:'BIS — Bank for International Settlements', org:'Banco de Pagos Internacionales', type:'research', typeLabel:'Organismo', alert:'hot', alertLabel:'REFERENTE GLOBAL',
+      desc:'El banco de los bancos centrales. Sus working papers y Quarterly Review son la fuente más rigurosa sobre estabilidad financiera global, divisas y sistemas de pago internacionales.',
+      tags:['Bancos centrales','Divisas','Estabilidad financ.','Pagos'], impact:'Basilea · 63 bancos centrales', url:'https://bis.org' },
+    { icon:'💰', name:'Atlantic Council — GeoEconomics Center', org:'Atlantic Council', type:'think', typeLabel:'Think Tank', alert:'new', alertLabel:'DÓLAR VS BRICS',
+      desc:'El centro de referencia en geoeconomía y geofinanzas del mundo occidental. Análisis sobre el dólar, CBDC, sanciones financieras, SWIFT y la arquitectura del sistema monetario.',
+      tags:['Dólar','CBDC','Sanciones','SWIFT','BRICS'], impact:'Washington D.C. · Top financiero', url:'https://atlanticcouncil.org/programs/geoeconomics-center' },
+    { icon:'📊', name:'Institute of International Finance', org:'IIF', type:'network', typeLabel:'Red global',
+      desc:'La principal asociación global de instituciones financieras. Publica datos sobre flujos de capital, deuda soberana y vulnerabilidades financieras en mercados emergentes.',
+      tags:['Flujos capital','Deuda soberana','Mercados emergentes'], impact:'500+ instituciones · Global', url:'https://iif.com' },
+    { icon:'📰', name:'Financial Times — Global Economy', org:'Financial Times', type:'media', typeLabel:'Medio esp.',
+      desc:'El diario de referencia mundial en finanzas y economía. Su cobertura de geofinanzas, mercados emergentes y política económica es estándar de oro para analistas.',
+      tags:['Mercados','Geofinanzas','Economía','Inversión'], impact:'800k+ suscriptores · #1 finanzas', url:'https://ft.com/global-economy' },
+    { icon:'📈', name:'Bloomberg Economics', org:'Bloomberg', type:'report', typeLabel:'Análisis', alert:'live', alertLabel:'TIEMPO REAL',
+      desc:'Análisis económico y financiero en tiempo real. Bloomberg Intelligence produce reportes sectoriales, análisis de mercados emergentes y modelos de riesgo soberano.',
+      tags:['Tiempo real','Mercados emergentes','Riesgo soberano'], impact:'340k terminales · Global', url:'https://bloomberg.com/economics' },
+    { icon:'🌍', name:'AfDB — African Development Bank', org:'Banco Africano de Desarrollo', type:'research', typeLabel:'Organismo', alert:'recent', alertLabel:'AFRICA 2025',
+      desc:'Banco de desarrollo continental africano. Sus informes sobre perspectivas económicas africanas, financiamiento de infraestructura y soberanía financiera son referencia continental.',
+      tags:['África','Financiamiento','Infraestructura','Soberanía'], impact:'Abidjan · 54 países miembros', url:'https://afdb.org/knowledge' },
+    { icon:'🏛️', name:'Milken Institute', org:'Milken Institute', type:'think', typeLabel:'Think Tank',
+      desc:'Think tank especializado en mercados de capital, financiamiento del desarrollo y economía de la innovación. Análisis sobre acceso al capital en países emergentes.',
+      tags:['Capital','Desarrollo','Innovación','Emergentes'], impact:'Los Angeles / Washington · Global', url:'https://milkeninstitute.org' },
+    { icon:'🔵', name:'SWIFT Institute', org:'SWIFT', type:'research', typeLabel:'Centro Invest.',
+      desc:'Centro de investigación del sistema global de pagos interbancarios. Análisis sobre modernización de pagos, tokenización, desdolarización y el futuro del sistema SWIFT.',
+      tags:['Pagos internacionales','Tokenización','Desdolarización'], impact:'200+ países · Sistema global', url:'https://swiftinstitute.org' },
+    { icon:'🌐', name:'New Development Bank', org:'Nuevo Banco de Desarrollo — BRICS', type:'research', typeLabel:'Organismo', alert:'new', alertLabel:'BRICS',
+      desc:'Banco de los BRICS. Financia infraestructura y desarrollo sostenible en economías emergentes. Alternativa estratégica al BM y FMI desde la perspectiva Sur-Sur.',
+      tags:['BRICS','Infraestructura','Sur-Sur','Alternativa BW'], impact:'Shanghai · 9 países miembros', url:'https://ndb.int/research' },
+    { icon:'💡', name:'Geoeconomics.org / CSIS', org:'CSIS Geoeconomics', type:'research', typeLabel:'Centro Invest.',
+      desc:'Análisis de la intersección entre geopolítica y finanzas. Sanciones, restricciones de inversión, supply chains y el uso de las finanzas como herramienta de poder.',
+      tags:['Sanciones','Supply chain','Poder financiero'], impact:'CSIS · Washington D.C.', url:'https://csis.org/programs/economics-program' },
+    { icon:'📜', name:'Review of International Political Economy', org:'RIPE — Taylor & Francis', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'TOP REVISTA',
+      desc:'Revista académica de economía política internacional. Combina economía, política y geopolítica para analizar el sistema financiero global desde perspectivas críticas.',
+      tags:['Economía política','Finanzas globales','Crítica','IPE'], impact:'IF: 4.2 · ABS 4*', url:'https://tandfonline.com/journals/rrip20' },
+  ],
+  geopsiquiatria: [
+    { icon:'🧠', name:'International Society of Political Psychology', org:'ISPP', type:'network', typeLabel:'Red académica', alert:'hot', alertLabel:'DISCIPLINA CLAVE',
+      desc:'Sociedad que estudia la intersección entre psicología y política. Comportamiento político, liderazgo, radicalización, propaganda y toma de decisiones bajo presión geopolítica.',
+      tags:['Psicología política','Liderazgo','Radicalización','Decisiones'], impact:'Fundada 1978 · Global', url:'https://ispp.org' },
+    { icon:'📊', name:'Political Psychology (Journal)', org:'Wiley / ISPP', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'IF ALTO',
+      desc:'Revista de referencia en psicología política. Publica estudios sobre actitudes políticas, identidad, polarización, miedo colectivo y la psicología del conflicto geopolítico.',
+      tags:['Actitudes políticas','Identidad','Polarización','Conflicto'], impact:'IF: 4.6 · Ref. disciplina', url:'https://onlinelibrary.wiley.com/journal/15406537' },
+    { icon:'🌍', name:'Journal of Political Psychology', org:'Elsevier / Cambridge', type:'journal', typeLabel:'Revista',
+      desc:'Publica investigaciones sobre cognición política, emoción y toma de decisiones en contextos de crisis internacional y guerras psicológicas.',
+      tags:['Cognición','Emoción','Crisis','Decisiones'], impact:'IF: 3.8 · Peer-reviewed', url:'https://academic.oup.com/poq' },
+    { icon:'🔬', name:'Frontiers in Political Science', org:'Frontiers Media', type:'journal', typeLabel:'Revista', alert:'new', alertLabel:'ACCESO ABIERTO',
+      desc:'Revista de acceso abierto que publica investigaciones sobre psicología política, sociología política y ciencias del comportamiento en contextos geopolíticos contemporáneos.',
+      tags:['Acceso abierto','Comportamiento','Sociología política'], impact:'Acceso abierto · Indexada', url:'https://frontiersin.org/journals/political-science' },
+    { icon:'🧩', name:'Global Mental Health / Cambridge', org:'Cambridge University Press', type:'journal', typeLabel:'Revista',
+      desc:'Salud mental global con enfoque en conflictos armados, desplazamientos y trauma colectivo. Aporta la dimensión psiquiátrica de las crisis geopolíticas y humanitarias.',
+      tags:['Salud mental global','Conflicto armado','Trauma','Humanitario'], impact:'IF: 4.1 · Cambridge', url:'https://cambridge.org/core/journals/global-mental-health' },
+    { icon:'🏛️', name:'Oxford Handbook of Political Psychology', org:'Oxford University Press', type:'database', typeLabel:'Base de datos',
+      desc:'Obra de referencia fundamental en psicología política. Reúne los paradigmas, metodologías y hallazgos clave de la disciplina con capítulos de los principales especialistas.',
+      tags:['Manual referencia','Paradigmas','Metodología'], impact:'Oxford · Estándar académico', url:'https://oxford.universitypressscholarship.com' },
+    { icon:'💡', name:'Psychology Today — Politics', org:'Psychology Today Media', type:'media', typeLabel:'Divulgación',
+      desc:'Plataforma de divulgación psicológica con sección política. Análisis accesibles sobre narcisismo en el liderazgo político, propaganda, manipulación y psicología de masas.',
+      tags:['Divulgación','Liderazgo','Propaganda','Masas'], impact:'Millones lectores · Digital', url:'https://psychologytoday.com/us/basics/politics' },
+    { icon:'🌐', name:'PsyArXiv — Political Psychology', org:'Open Science Framework', type:'database', typeLabel:'Preprints', alert:'live', alertLabel:'ACCESO LIBRE',
+      desc:'Repositorio de preprints en psicología con sección de psicología política. Acceso libre a investigaciones previas a publicación sobre cognición política y geopsiquiatría.',
+      tags:['Preprints','Acceso libre','Cognición','Investigación previa'], impact:'Global · Open Science', url:'https://psyarxiv.com' },
+    { icon:'🔄', name:'Sociedad Española de Psiquiatría y Salud Mental', org:'SEPSM', type:'network', typeLabel:'Red académica',
+      desc:'Referente en habla hispana sobre psiquiatría social y política. Publica análisis sobre salud mental en contextos de crisis política, migración y conflictos armados en ALC.',
+      tags:['ALC','Psiquiatría social','Crisis política','Migración'], impact:'Español · Ref. iberoamericano', url:'https://sepsm.org' },
+    { icon:'📰', name:'The Lancet Psychiatry', org:'The Lancet / Elsevier', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'ALTO IMPACTO',
+      desc:'Revista de psiquiatría clínica de mayor impacto. Publica estudios sobre salud mental en situaciones de guerra, desplazamiento, pobreza estructural y determinantes sociales.',
+      tags:['Psiquiatría clínica','Guerra','Pobreza','Determinantes'], impact:'IF: 45.4 · #1 psiquiatría', url:'https://thelancet.com/psychiatry' },
+  ],
+  politica: [
+    { icon:'🌐', name:'American Political Science Review', org:'APSA / Cambridge', type:'journal', typeLabel:'Revista', alert:'hot', alertLabel:'#1 MUNDIAL',
+      desc:'La revista más importante de ciencia política del mundo. Publica investigaciones sobre teoría política, política comparada, relaciones internacionales y comportamiento electoral.',
+      tags:['Ciencia política','RI','Política comparada','Electoral'], impact:'IF: 6.0 · #1 ciencia política', url:'https://cambridge.org/core/journals/american-political-science-review' },
+    { icon:'📜', name:'Governance — An International Journal', org:'Wiley-Blackwell', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'GOBERNANZA',
+      desc:'Publicación de referencia en gobernanza pública, administración comparada y políticas públicas. Análisis de la calidad institucional y la eficacia del gobierno en distintos regímenes.',
+      tags:['Gobernanza','Admin. comparada','Instituciones','Calidad'], impact:'IF: 4.7 · Top políticas PP', url:'https://onlinelibrary.wiley.com/journal/14680491' },
+    { icon:'🏛️', name:'Journal of Policy Analysis & Management', org:'APPAM / Wiley', type:'journal', typeLabel:'Revista',
+      desc:'Referente en análisis y gestión de políticas públicas. Métodos de evaluación, diseño de políticas y el papel de la evidencia en la toma de decisiones gubernamentales.',
+      tags:['Evaluación políticas','Diseño PP','Evidencia','Gestión'], impact:'IF: 3.9 · APPAM referente', url:'https://onlinelibrary.wiley.com/journal/15206688' },
+    { icon:'🔵', name:'UNDP — Policy Centre', org:'Programa de las Naciones Unidas para el Desarrollo', type:'research', typeLabel:'Organismo', alert:'new', alertLabel:'ODS 2025',
+      desc:'Centro de políticas del PNUD. Análisis sobre gobernanza democrática, estado de derecho, participación ciudadana y desarrollo humano en el Sur Global.',
+      tags:['ODS','Gobernanza democrática','Participación','Sur Global'], impact:'ONU · 170 países · Global', url:'https://undp.org/policy-centre' },
+    { icon:'🌍', name:'Wilson Center', org:'Woodrow Wilson International Center for Scholars', type:'think', typeLabel:'Think Tank',
+      desc:'Centro académico que vincula investigación y política pública. Especialmente relevante para América Latina, Rusia/Europa y el Medio Oriente desde una perspectiva histórica.',
+      tags:['ALC','Rusia','Medio Oriente','Historia política'], impact:'Washington D.C. · Congreso EE.UU.', url:'https://wilsoncenter.org' },
+    { icon:'🔬', name:'LSE — Department of Government', org:'London School of Economics', type:'research', typeLabel:'Centro Invest.',
+      desc:'Uno de los departamentos de ciencia política y gobierno más influyentes del mundo. LSE IDEAS produce análisis sobre política comparada, democracia y política exterior.',
+      tags:['Política comparada','Democracia','Política exterior'], impact:'LSE · #1 Europa ciencia política', url:'https://lse.ac.uk/ideas' },
+    { icon:'📊', name:'Comparative Political Studies', org:'SAGE Publications', type:'journal', typeLabel:'Revista',
+      desc:'Referente en política comparada. Estudios sobre sistemas de partidos, instituciones electorales, democratización y autoritarismo con metodología cuantitativa y cualitativa.',
+      tags:['Partidos','Democracia','Autoritarismo','Elecciones'], impact:'IF: 4.6 · Top política comparada', url:'https://journals.sagepub.com/home/cps' },
+    { icon:'🌎', name:'Inter-American Dialogue', org:'Diálogo Interamericano', type:'think', typeLabel:'Think Tank', alert:'recent', alertLabel:'ALC',
+      desc:'Think tank líder en política latinoamericana. Análisis sobre gobernanza, democracia, migración, narcoviolencia y la relación entre EE.UU. y América Latina.',
+      tags:['ALC','Democracia','Migración','Gobernanza'], impact:'Washington D.C. · Ref. ALC', url:'https://thedialogue.org' },
+    { icon:'📋', name:'BTI — Bertelsmann Transformation Index', org:'Bertelsmann Stiftung', type:'database', typeLabel:'Base de datos', alert:'new', alertLabel:'137 PAÍSES',
+      desc:'Índice que mide la transformación política y económica de 137 países en desarrollo. Herramienta de referencia para analizar calidad democrática y capacidad de gestión estatal.',
+      tags:['Democracia','Índice','137 países','Transformación'], impact:'Fundación Bertelsmann · Bianual', url:'https://bti-project.org' },
+    { icon:'🔷', name:'Freedom House', org:'Freedom House', type:'research', typeLabel:'Centro Invest.',
+      desc:'Organización que mide libertad política y derechos civiles en 210 países. Sus índices son referencia para analizar tendencias democráticas y autoritarias globales.',
+      tags:['Libertad','Democracia','Derechos civiles','210 países'], impact:'Washington D.C. · Referencia global', url:'https://freedomhouse.org' },
+    { icon:'🌿', name:'Policy Sciences (Springer)', org:'Springer Nature', type:'journal', typeLabel:'Revista',
+      desc:'Revista multidisciplinaria de ciencias de políticas que integra ciencia política, administración, economía y sociología para el análisis de políticas públicas complejas.',
+      tags:['Multidisciplinar','Políticas complejas','Ciencias PP'], impact:'IF: 3.4 · Springer', url:'https://link.springer.com/journal/11077' },
+    { icon:'📰', name:'NACLA — North American Congress on Latin America', org:'NACLA', type:'journal', typeLabel:'Revista', alert:'recent', alertLabel:'ALC CRÍTICO',
+      desc:'Publicación académica crítica sobre política latinoamericana. Perspectiva de izquierda sobre movimientos sociales, resistencia política, imperialismo y transformación en ALC.',
+      tags:['ALC','Movimientos sociales','Crítica','Imperialismo'], impact:'Perspectiva Sur · Ref. crítico', url:'https://nacla.org' },
+    { icon:'🏆', name:'V-Dem — Varieties of Democracy', org:'Universidad de Gothenburg', type:'database', typeLabel:'Base de datos', alert:'new', alertLabel:'DATOS 2025',
+      desc:'La base de datos más completa sobre democracia. Mide más de 500 indicadores en 202 países desde 1789. Referencia indispensable para investigación en política comparada.',
+      tags:['Democracia','500+ indicadores','202 países','Datos'], impact:'Gothenburg · Estándar global', url:'https://vdem.net' },
+  ],
+  surglobal: [
+    { icon:'🌎', name:'CLACSO', org:'Consejo Latinoamericano de Ciencias Sociales', type:'network', typeLabel:'Red académica', alert:'hot', alertLabel:'ALC — REFERENTE',
+      desc:'La mayor red académica de ciencias sociales de América Latina. Publica investigaciones críticas sobre política, economía, cultura y movimientos sociales con perspectiva Sur-Sur.',
+      tags:['Ciencias sociales ALC','Movimientos','Crítica','Sur-Sur'], impact:'700 instituciones · 52 países', url:'https://clacso.org' },
+    { icon:'🌍', name:'South Centre', org:'South Centre — Ginebra', type:'think', typeLabel:'Think Tank', alert:'new', alertLabel:'SUR GLOBAL',
+      desc:'Think tank intergubernamental del Sur Global con sede en Ginebra. Análisis sobre comercio, salud, propiedad intelectual y gobernanza global desde la perspectiva de los países en desarrollo.',
+      tags:['Sur Global','Comercio','Salud','Propiedad intelectual'], impact:'Ginebra · 55 países miembros', url:'https://southcentre.int' },
+    { icon:'🔬', name:'CODESRIA', org:'Consejo para el Desarrollo de la Investigación en Ciencias Sociales en África', type:'network', typeLabel:'Red académica',
+      desc:'La principal red académica de ciencias sociales en África. Publica investigaciones sobre política africana, economía política, movimientos sociales y teoría decolonial.',
+      tags:['África','Decolonial','Política africana','Teoría crítica'], impact:'Dakar · Red panafricana', url:'https://codesria.org' },
+    { icon:'🔴', name:'Tricontinental — Institute for Social Research', org:'Tricontinental', type:'research', typeLabel:'Centro Invest.', alert:'recent', alertLabel:'CRÍTICO',
+      desc:'Instituto marxista de investigación con presencia en el Sur Global. Produce dossieres y análisis críticos sobre imperialismo, movimientos de liberación y alternativas al capitalismo.',
+      tags:['Sur Global','Imperialismo','Liberación','Alternativas'], impact:'Global · Buenos Aires · Johannesburgo', url:'https://thetricontinental.org' },
+    { icon:'📚', name:'Third World Quarterly', org:'Taylor & Francis / Routledge', type:'journal', typeLabel:'Revista',
+      desc:'La revista académica de mayor trayectoria dedicada al Sur Global. Análisis político, económico y social del desarrollo, soberanía y transformación en países emergentes.',
+      tags:['Sur Global','Desarrollo','Soberanía','Emergentes'], impact:'IF: 3.6 · Desde 1979', url:'https://tandfonline.com/journals/ctwq20' },
+    { icon:'🌿', name:'FLACSO — Facultad Latinoamericana de Ciencias Sociales', org:'FLACSO', type:'network', typeLabel:'Red académica',
+      desc:'Red académica regional de excelencia en ciencias sociales. Sedes en 18 países con producción en política, género, seguridad y desarrollo en América Latina.',
+      tags:['ALC','Ciencias sociales','Política','Género'], impact:'18 sedes · Red regional', url:'https://flacso.org' },
+    { icon:'🌐', name:'Africa Research Institute', org:'ARI — Londres', type:'research', typeLabel:'Centro Invest.',
+      desc:'Centro de investigación independiente sobre África. Análisis sobre gobernanza, desarrollo económico, recursos naturales y política africana desde una perspectiva basada en evidencia.',
+      tags:['África','Gobernanza','Recursos','Evidencia'], impact:'Londres · Perspectiva africana', url:'https://africaresearchinstitute.org' },
+    { icon:'💡', name:'Rosa Luxemburg Foundation', org:'Rosa Luxemburg Stiftung', type:'think', typeLabel:'Think Tank', alert:'recent', alertLabel:'PROGRESISTA',
+      desc:'Think tank alemán de orientación progresista con presencia global. Análisis sobre movimientos sociales, anticapitalismo, feminismo político y transformación en el Sur Global.',
+      tags:['Movimientos sociales','Sur Global','Anticapitalismo','Feminismo'], impact:'Berlin · 30 oficinas globales', url:'https://rosalux.org' },
+    { icon:'📊', name:'CEPAL — Comisión para ALC', org:'ONU / CEPAL', type:'research', typeLabel:'Organismo',
+      desc:'Organismo regional de la ONU para el análisis económico y social de América Latina. Publicaciones sobre integración, desigualdad, tecnología e inserción internacional.',
+      tags:['ALC','ONU','Integración','Desigualdad'], impact:'Santiago · ONU · Ref. regional', url:'https://cepal.org/es/publicaciones' },
+    { icon:'🌍', name:'African Union — Research', org:'Unión Africana', type:'research', typeLabel:'Organismo', alert:'new', alertLabel:'AGENDA 2063',
+      desc:'Centro de investigación de la UA. Agenda 2063, análisis de integración continental, paz y seguridad africana. Referente para el estudio del panafricanismo y la autonomía estratégica.',
+      tags:['África','Agenda 2063','Panafricanismo','Integración'], impact:'Addis Abeba · 55 países', url:'https://au.int/research' },
+    { icon:'🔵', name:'ALBA-TCP — Centro de Pensamiento', org:'ALBA-TCP', type:'network', typeLabel:'Red académica', alert:'recent', alertLabel:'INTEGRACIÓN',
+      desc:'Centro de pensamiento de la Alianza Bolivariana. Análisis sobre integración latinoamericana, economía solidaria y alternativas al modelo neoliberal desde la perspectiva bolivariana.',
+      tags:['ALBA','Integración','Economía solidaria','Bolivariana'], impact:'Caracas · Red alternativa', url:'https://alba-tcp.org' },
+    { icon:'📰', name:'NACLA — Latin America Report', org:'NACLA', type:'journal', typeLabel:'Revista',
+      desc:'Publicación de análisis político crítico sobre América Latina desde 1967. Movimientos sociales, política izquierda, resistencia y transformación en el hemisferio.',
+      tags:['ALC','Movimientos','Izquierda','Resistencia'], impact:'Perspectiva crítica Sur · Desde 1967', url:'https://nacla.org' },
+  ]
+};
+
+let currentDiscipline = 'gerencia';
+let currentFilter = 'all';
+let currentSearch = '';
+
+function renderGrid(disc){
+  const data = KNOW_DATA[disc] || [];
+  const grid = document.getElementById(`grid-${disc}`);
+  if(!grid) return;
+  const filtered = data.filter(r => {
+    const matchFilter = currentFilter === 'all' || r.type === currentFilter;
+    const q = currentSearch.toLowerCase();
+    const matchSearch = !q || r.name.toLowerCase().includes(q) || r.org.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q) || (r.tags||[]).some(t=>t.toLowerCase().includes(q));
+    return matchFilter && matchSearch;
+  });
+  if(!filtered.length){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--dim);font-family:var(--font-m);font-size:10px;letter-spacing:2px">No se encontraron recursos para este filtro</div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(r => {
+    const alertHtml = r.alert ? `<span class="res-alert alert-${r.alert}">${r.alert==='new'?'🟢':r.alert==='hot'?'🔴':r.alert==='recent'?'🟡':'🔵'} ${r.alertLabel}</span>` : '';
+    return `<div class="res-card" data-type="${r.type}">
+      <div class="res-card-header">
+        <div class="res-logo" style="background:rgba(184,137,42,.06)">${r.icon}</div>
+        <div class="res-badges">
+          <span class="res-type type-${r.type}">${r.typeLabel}</span>
+          ${alertHtml}
+        </div>
+      </div>
+      <div class="res-name">${r.name}</div>
+      <div class="res-org">${r.org}</div>
+      <div class="res-desc">${r.desc}</div>
+      <div class="res-tags">${(r.tags||[]).map(tg=>`<span class="res-tag">${tg}</span>`).join('')}</div>
+      <div class="res-footer">
+        <span class="res-impact">${r.impact||''}</span>
+        <a href="${r.url}" target="_blank" rel="noopener" class="res-link">Visitar →</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchDiscipline(disc){
+  currentDiscipline = disc;
+  currentSearch = '';
+  document.getElementById('knowSearch').value = '';
+  document.querySelectorAll('.disc-tab').forEach(b => b.classList.toggle('active', b.id===`dtab-${disc}`));
+  document.querySelectorAll('.know-panel').forEach(p => p.classList.toggle('active', p.id===`panel-${disc}`));
+  renderGrid(disc);
+}
+
+function filterRes(type, btn){
+  currentFilter = type;
+  document.querySelectorAll('.kf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid(currentDiscipline);
+}
+
+function searchRes(q){
+  currentSearch = q;
+  renderGrid(currentDiscipline);
+}
+
+/* ── INIT ────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', ()=>{
+  updateFCPresets();
+  initMap();
+  loadNews('world','🌐');
+  // Render all discipline grids upfront
+  Object.keys(KNOW_DATA).forEach(disc => renderGrid(disc));
+});
+</script>
+</body>
+</html>
